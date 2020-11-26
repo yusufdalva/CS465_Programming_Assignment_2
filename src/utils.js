@@ -1,3 +1,7 @@
+let index = 0;
+let pointsArray = [];
+let indices = [];
+
 function matrixVectorProd(matrix, vector) {
     if (matrix.length !== vector.length) {
         return null;
@@ -39,34 +43,40 @@ function getPolygon(sides, rotateAxis, r) {
     return vertices;
 }
 
-function getPrism(sides, rotateAxis, radius, height) {
+function getPrism(sides, rotateAxis, radius, height, startIndex) {
+    indices = [];
     let circleVertices = getPolygon(sides, 2, radius);
+    for (let i = 0; i < 2 * sides; i++) { indices.push(i + startIndex); }
     const cylinderHeight = Math.min(height, 2);
     let bottom = [];
     let top = [];
     for (let vertexIdx = 0; vertexIdx < circleVertices.length; vertexIdx++) {
-        bottom.push(matrixVectorProd(translate(0, 0, -cylinderHeight / 2), circleVertices[vertexIdx]));
-        top.push(matrixVectorProd(translate(0, 0, cylinderHeight / 2), circleVertices[vertexIdx]));
+        if (rotateAxis == 2) {
+            bottom.push(matrixVectorProd(translate(0, 0, -cylinderHeight / 2), circleVertices[vertexIdx]));
+            top.push(matrixVectorProd(translate(0, 0, cylinderHeight / 2), circleVertices[vertexIdx]));
+        } else if (rotateAxis == 1) {
+            bottom.push(matrixVectorProd(translate(0, -cylinderHeight / 2, 0), circleVertices[vertexIdx]));
+            top.push(matrixVectorProd(translate(0, cylinderHeight / 2, 0), circleVertices[vertexIdx]));
+        } else if (rotateAxis == 0) {
+            bottom.push(matrixVectorProd(translate(-cylinderHeight / 2, 0, 0), circleVertices[vertexIdx]));
+            top.push(matrixVectorProd(translate(cylinderHeight / 2, 0, 0), circleVertices[vertexIdx]));
+        }
     }
-    let indices = [];
     let vertices = bottom.concat(top);
     for (let side = 0; side < sides; side++) {
         let bottomIndices = [(side % sides), ((side + 1) % sides)];
         let topIndices = [(side % sides) + sides, ((side + 1) % sides) + sides];
-        quad(topIndices[0], bottomIndices[0], bottomIndices[1], topIndices[0], );
+        // Generate quad for prism generation
+        indices.push(topIndices[0] + startIndex);
+        indices.push(bottomIndices[0] + startIndex);
+        indices.push(bottomIndices[1] + startIndex);
+        indices.push(topIndices[1] + startIndex);
     }
     return [vertices, indices];
 }
 
-function quad(a, b, c, d, indices) {
-    indices.push(a);
-    indices.push(b);
-    indices.push(c);
-    indices.push(d);
-}
-
 //sphere
-function triangle(a, b, c, pointsArray, index) {
+function triangle(a, b, c) {
      pointsArray.push(a);
      pointsArray.push(b);      
      pointsArray.push(c);
@@ -76,16 +86,15 @@ function triangle(a, b, c, pointsArray, index) {
      normalsArray.push(c[0],c[1], c[2], 0.0);
 	*/
      index += 3;
-     
 }
 
 
 function divideTriangle(a, b, c, count) {
     if ( count > 0 ) {
                 
-        var ab = mix( a, b, 0.5);
-        var ac = mix( a, c, 0.5);
-        var bc = mix( b, c, 0.5);
+        let ab = mix( a, b, 0.5);
+        let ac = mix( a, c, 0.5);
+        let bc = mix( b, c, 0.5);
                 
         ab = normalize(ab, true);
         ac = normalize(ac, true);
@@ -102,9 +111,16 @@ function divideTriangle(a, b, c, count) {
 }
 
 
-function tetrahedron(a, b, c, d, n) {
+function tetrahedron(n) {
+    index = 0;
+    pointsArray = [];
+    let a = vec4(0.0, 0.0, -1.0, 1);
+    let b = vec4(0.0, 0.942809, 0.333333, 1);
+    let c = vec4(-0.816497, -0.471405, 0.333333, 1);
+    let d = vec4(0.816497, -0.471405, 0.333333, 1);
     divideTriangle(a, b, c, n);
     divideTriangle(d, c, b, n);
     divideTriangle(a, d, b, n);
     divideTriangle(a, c, d, n);
+    return [index, pointsArray];
 }
