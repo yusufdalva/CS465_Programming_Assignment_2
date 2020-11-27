@@ -52,14 +52,14 @@ function getPrism(sides, rotateAxis, radius, height, startIndex) {
     let top = [];
     for (let vertexIdx = 0; vertexIdx < circleVertices.length; vertexIdx++) {
         if (rotateAxis == 2) {
-            bottom.push(matrixVectorProd(translate(0, 0, -cylinderHeight / 2), circleVertices[vertexIdx]));
-            top.push(matrixVectorProd(translate(0, 0, cylinderHeight / 2), circleVertices[vertexIdx]));
+            bottom.push(matrixVectorProd(translate(0, 0, 0), circleVertices[vertexIdx]));
+            top.push(matrixVectorProd(translate(0, 0, cylinderHeight), circleVertices[vertexIdx]));
         } else if (rotateAxis == 1) {
-            bottom.push(matrixVectorProd(translate(0, -cylinderHeight / 2, 0), circleVertices[vertexIdx]));
-            top.push(matrixVectorProd(translate(0, cylinderHeight / 2, 0), circleVertices[vertexIdx]));
+            bottom.push(matrixVectorProd(translate(0, 0, 0), circleVertices[vertexIdx]));
+            top.push(matrixVectorProd(translate(0, cylinderHeight, 0), circleVertices[vertexIdx]));
         } else if (rotateAxis == 0) {
-            bottom.push(matrixVectorProd(translate(-cylinderHeight / 2, 0, 0), circleVertices[vertexIdx]));
-            top.push(matrixVectorProd(translate(cylinderHeight / 2, 0, 0), circleVertices[vertexIdx]));
+            bottom.push(matrixVectorProd(translate(0, 0, 0), circleVertices[vertexIdx]));
+            top.push(matrixVectorProd(translate(cylinderHeight, 0, 0), circleVertices[vertexIdx]));
         }
     }
     let vertices = bottom.concat(top);

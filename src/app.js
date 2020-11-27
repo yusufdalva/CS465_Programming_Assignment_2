@@ -1,9 +1,8 @@
 let gl;
 let canvas;
 let program;
-let approxSides = 10;
 let spherePointCount;
-let toSubdivide = 5;
+let toSubdivide = 4;
 
 let sphereMetadata = {};
 let cylinderMetadata = {};
@@ -11,82 +10,25 @@ let prismMetadata = {};
 
 let vertexCount = 0;
 
-let alpha = [0, 0, 0, 0, 0, 0, 180, 0, 180, 0, 0]; // alpha is the joint angle
-
-let torsoId = 0;
-let leftTentacleId  = 1;
-let rightTentacleId = 2;
-let lowerTorsoId = 3;
-
-//left side of spider
-let leftUpperLeg1Id = 4;
-let leftMidLeg1Id = 5;
-let leftLowerLeg1Id = 6;
-
-let leftUpperLeg2Id = 7;
-let leftMidLeg2Id = 8;
-let leftLowerLeg2Id = 9;
-
-let leftUpperLeg3Id = 10;
-let leftMidLeg3Id = 11;
-let leftLowerLeg3Id = 12;
-
-let leftUpperLeg4Id = 13;
-let leftMidLeg4Id = 14;
-let leftLowerLeg4Id = 15;
-
-//right side of spider
-let rightUpperLeg1Id = 16;
-let rightMidLeg1Id = 17;
-let rightLowerLeg1Id = 18;
-
-let rightUpperLeg2Id = 19;
-let rightMidLeg2Id = 20;
-let rightLowerLeg2Id = 21;
-
-let rightUpperLeg3Id = 22;
-let rightMidLeg3Id = 23;
-let rightLowerLeg3Id = 24;
-
-let rightUpperLeg4Id = 25;
-let rightMidLeg4Id = 26;
-let rightLowerLeg4Id = 27;
-
-
-//sizes of body parts uydurdum değiştiririz
-
-let torsoHeight = 4.0;
-let torsoWidth = 2.0;
-
-let upperLegHeight = 5.0;
-let upperLegWidth = 1.0;
-
-let midLegHeight = 4.0;
-let midLegWidth = 1.0;
-
-let lowerLegHeight = 3.0;
-let lowerLegWidth = 1.0;
-
-let tentacleHeight = 3.0;
-let tentacleMid = 0.5;
-
-let indexOffset = 0;
-let vertexOffset = 0;
-
+let alpha = [0, 0, 0, 0, 135, 0, 180, 0, 180, 0, 0]; // alpha is the joint angle
 
 let eye;
 let at = vec3(0.0, 0.0, 0.0);
 let up = vec3(0.0, 1.0, 0.0);
 
 let modelViewMatrix, projectionMatrix;
-let modelViewMatrixLoc, projectionMatrixLoc;
+let mvMatrixLoc, prjMatrixLoc;
 
-let numNodes = 28;
+let instanceMatrix;
+
+let numNodes = 6;
 let stack = [];
 
 let spider = [];
 
-// for( let i=0; i<numNodes; i++) spider[i] = createNode(null, null, null, null);
+for( let i=0; i<numNodes; i++) { // Preparing necessary variables
+    spider[i] = createNode(null, null, null, null);
+}
 
 function init() {
     canvas = document.getElementById("gl-canvas");
@@ -104,7 +46,7 @@ function init() {
     // Generate Sphere Points
 
     // Generate Cylinder Points - uses index structure
-    let cylinder = getPrism(30, 0, 0.5, 0.5, vertexCount);
+    let cylinder = getPrism(30, 0, 0.2, 5, vertexCount);
     let cylinderVertices = cylinder[0];
     vertexCount += cylinderVertices.length;
     let cylinderIndices = cylinder[1];
@@ -141,7 +83,7 @@ function init() {
     console.log("Total number of vertices: " + vertices.length.toString());
     console.log("Total Number of indices: " + indices.length.toString());
 
-
+    // All data transfer to the buffers are done here
     let iBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indices), gl.STATIC_DRAW);
@@ -154,11 +96,17 @@ function init() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
+    mvMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+    prjMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
-    // modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
-    // projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
+    instanceMatrix = mat4(); // Initialize as identity matrix
+    projectionMatrix = ortho(-10.0,10.0,-10.0, 10.0,-10.0,10.0);
+    modelViewMatrix = mat4();
 
-    // for(let i=0; i<numNodes; i++) initNodes(i);
+    gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
+    gl.uniformMatrix4fv( gl.getUniformLocation( program, "projectionMatrix"), false, flatten(projectionMatrix) );
+
+    for(let i=0; i< numNodes; i++) initNodes(i);
 
     render();
 }
@@ -167,13 +115,11 @@ window.onload = init;
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //renderSphere();
-    renderCylinder();
-    //renderPrism();
-    //traverse(torsoId);
+    traverse(torsoId);
     requestAnimFrame(render);
 }
 
+// Renders a sphere primitive
 function renderSphere() {
     for (let pointIdx = 0; pointIdx < sphereMetadata.vertexCount; pointIdx += 3) {
         gl.drawArrays(gl.LINE_LOOP, pointIdx + cylinderMetadata.vertexCount + prismMetadata.vertexCount, 3); // Render in triangular wires
@@ -202,7 +148,7 @@ function renderPrism() {
         Uint8Array.BYTES_PER_ELEMENT * (drawnPoints + cylinderMetadata.indexCount));
 }
 
-/*
+
 function createNode(transform, render, sibling, child){
     return {
         transform: transform,
@@ -215,19 +161,58 @@ function createNode(transform, render, sibling, child){
 function traverse(Id) {
 
    if(Id == null) return;
+   console.log(Id);
+   console.log(spider[Id]);
    stack.push(modelViewMatrix);
-   modelViewMatrix = mult(modelViewMatrix, figure[Id].transform);
+   modelViewMatrix = mult(modelViewMatrix, spider[Id].transform);
    spider[Id].render();
-   if(spider[Id].child != null) traverse(figure[Id].child);
+   if(spider[Id].child != null) traverse(spider[Id].child);
     modelViewMatrix = stack.pop();
-   if(spider[Id].sibling != null) traverse(figure[Id].sibling);
+   if(spider[Id].sibling != null) traverse(spider[Id].sibling);
 }
 
+
+
 //initializing nodes
-function initNodes(Id) {
+function initNodes(partId) {
 
     let m = mat4();
+    m = mult(m, scale4(0.7, 0.7, 0.7));
 
+    switch (partId) {
+        case torsoId:
+            m = mult(m, rotate(alpha[torsoId], 0, 1, 0)); // Rotate around y - by euler angle
+            spider[torsoId] = createNode(m, torso, null, leftTentacleId);
+            break;
+        case leftTentacleId:
+            m = translate(-(torsoWidth/2), torsoHeight,0.0);
+            m = mult(m, rotate(alpha[leftTentacleId], 0, 1, 0));
+            spider[leftTentacleId] = createNode(m, tentacle, rightTentacleId, null);
+            break;
+
+        case rightTentacleId:
+            m = translate(torsoWidth/2, torsoHeight, 0.0);
+            spider[rightTentacleId] = createNode(m, tentacle, lowerTorsoId, null);
+            break;
+
+        case lowerTorsoId:
+            m = translate(0.0, -(2 * torsoHeight), 0.0);
+            spider[lowerTorsoId] = createNode(m, lowerTorso, leftUpperLeg1Id, null);
+            break;
+        // Left Leg 1
+        case leftUpperLeg1Id:
+            m = translate(-(torsoWidth * 0.9), 0.7 * torsoHeight, 0.0);
+            m = mult(m,rotate(alpha[leftUpperLeg1Id], 0, 0, 1));
+            spider[leftUpperLeg1Id] = createNode(m,upperLeg,leftUpperLeg2Id,leftMidLeg1Id);
+            break;
+
+        case leftMidLeg1Id:
+            m = translate(-upperLegHeight, 0.0, 0.0);
+            m = mult(m,rotate(alpha[leftMidLeg1Id],1,0,0));
+            spider[leftMidLeg1Id] = createNode(m, midLeg,null,leftLowerLeg1Id);
+            break;
+    }
+/*
     switch(Id) {
 
     case torsoId:
@@ -405,8 +390,41 @@ function initNodes(Id) {
 
 
     }
+ */
+}
 
+// Render Functions for parts
+// Applies post-multiplication
+function torso() {
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
+    gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
+    renderSphere();
+}
+
+function tentacle() {
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, tentacleHeight * 0.35, 0));
+    instanceMatrix = mult(instanceMatrix, scale4(tentacleMid, tentacleHeight, tentacleMid));
+    gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
+    renderPrism();
+}
+
+function lowerTorso() {
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
+    gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
+    renderSphere();
+}
+
+function upperLeg() {
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(upperLegHeight, upperLegWidth, upperLegHeight));
+    gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
+    renderCylinder();
+}
+
+function midLeg() {
 
 }
-*/
+
 

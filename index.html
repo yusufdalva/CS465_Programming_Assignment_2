@@ -5,9 +5,11 @@
     <title>Programming Assignment 2</title>
     <script id="vertex-shader" type="x-shader/x-vertex">
         attribute vec4 vPosition;
+        uniform mat4 projectionMatrix;
+        uniform mat4 modelViewMatrix;
 
-        void main(){
-            gl_Position = vPosition;
+        void main() {
+            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
         }
     </script>
 
@@ -23,6 +25,7 @@
     <script type="text/javascript" src="Commons/initShaders.js"></script>
     <script type="text/javascript" src="Commons/MV.js"></script>
     <script type="text/javascript" src="src/utils.js"></script>
+    <script type="text/javascript" src="src/figure-utils.js"></script>
     <script type="text/javascript" src="src/app.js"></script>
 </head>
 <body>
