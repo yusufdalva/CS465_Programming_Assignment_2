@@ -10,7 +10,7 @@ let prismMetadata = {};
 
 let vertexCount = 0;
 
-let alpha = [0, 0, 0, 0, 135, 0, 180, 0, 180, 0, 0]; // alpha is the joint angle
+let alpha = [0, 0, 0, 0, 135, 0, 180, 135, 0, 0, 225,0,0,225,0,0,45,0,0,45,0,0,315,0,0,315,0,0]; // alpha is the joint angle
 
 let eye;
 let at = vec3(0.0, 0.0, 0.0);
@@ -21,7 +21,7 @@ let mvMatrixLoc, prjMatrixLoc;
 
 let instanceMatrix;
 
-let numNodes = 6;
+let numNodes = 28;
 let stack = [];
 
 let spider = [];
@@ -196,202 +196,160 @@ function initNodes(partId) {
             break;
 
         case lowerTorsoId:
-            m = translate(0.0, -(2 * torsoHeight), 0.0);
+            m = translate(0.0, -(2.1* torsoHeight), 0.0);
             spider[lowerTorsoId] = createNode(m, lowerTorso, leftUpperLeg1Id, null);
             break;
         // Left Leg 1
         case leftUpperLeg1Id:
-            m = translate(-(torsoWidth * 0.9), 0.7 * torsoHeight, 0.0);
+            m = translate(-(torsoWidth * 0.8), 0.7 * torsoHeight, 0.0);
             m = mult(m,rotate(alpha[leftUpperLeg1Id], 0, 0, 1));
             spider[leftUpperLeg1Id] = createNode(m,upperLeg,leftUpperLeg2Id,leftMidLeg1Id);
             break;
 
         case leftMidLeg1Id:
-            m = translate(-upperLegHeight, 0.0, 0.0);
+            m = translate(2*upperLegHeight,0, 0.0);
             m = mult(m,rotate(alpha[leftMidLeg1Id],1,0,0));
             spider[leftMidLeg1Id] = createNode(m, midLeg,null,leftLowerLeg1Id);
-            break;
-    }
-/*
-    switch(Id) {
-
-    case torsoId:
-
-    m = rotate(alpha[torsoId], 0, 1, 0 );
-	//m = translate(x,y,z); // root a tüm örümceğe yaptırmak isteğimiz hareketleri koymalıyız
-    spider[torsoId] = createNode( m, torso, null, headId );
-    break;
-
-    case leftTentacleId:
-	m = translate(-(torsoWidth/2), torsoHeight+0.5*tentacleHeigt, 0.0);
-    spider[leftTentacleId] = createNode( m, tentacle, rightTentacleId, null);
-    break;
-
-	case rightTentacleId:
-	m = translate(torsoWidth/2, torsoHeight+0.5*tentacleHeigt, 0.0);
-    spider[rightTentacleId] = createNode( m, tentacle, lowerTorsoId, null);
-    break;
-
-	case lowerTorsoId:
-	m = translate(0.0, -(torsoHeight+0.1*lowerLegHeight), 0.0);
-	m = mult(m,rotate(alpha[lowerTorsoId],1,0,0));
-	spider[lowerTorsoId] = createNode(m,lowerTorso,leftUpperLeg1Id,null);
-	break;
-
-	//left upper legs
-    case leftUpperLeg1Id:
-	m = translate(-(torsoWidth+upperLegWidth), 0.8*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[leftUpperLeg1Id],1,0,0));
-	spider[leftUpperLeg1Id] = createNode(m,upperLeg,leftUpperLeg2Id,leftMidLeg1Id);
-	break;
-
-	case leftUpperLeg2Id:
-	m = translate(-(torsoWidth+upperLegWidth), 0.5*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[leftUpperLeg2Id],1,0,0));
-	spider[leftUpperLeg2Id] = createNode(m,upperLeg,leftUpperLeg3Id,leftMidLeg2Id);
-	break;
-
-	case leftUpperLeg3Id:
-	m = translate(-(torsoWidth+upperLegWidth), 0.3*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[leftUpperLeg3Id],1,0,0));
-	spider[leftUpperLeg3Id] = createNode(m,upperLeg,leftUpperLeg4Id,leftMidLeg3Id);
-	break;
-
-	case leftUpperLeg4Id:
-	m = translate(-(torsoWidth+upperLegWidth), 0.1*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[leftUpperLeg4Id],1,0,0));
-	spider[leftUpperLeg3Id] = createNode(m,upperLeg,rightUpperLeg1Id,leftMidLeg4Id);
-	break;
-
-	//right upper legs
-	case rightUpperLeg1Id:
-	m = translate((torsoWidth+upperLegWidth), 0.8*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[rightUpperLeg1Id],1,0,0));
-	spider[rightUpperLeg1Id] = createNode(m,upperLeg,rightUpperLeg2Id,rightMidLeg1Id);
-	break;
-
-	case rightUpperLeg2Id:
-	m = translate((torsoWidth+upperLegWidth), 0.5*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[rightUpperLeg2Id],1,0,0));
-	spider[rightUpperLeg2Id] = createNode(m,upperLeg,rightUpperLeg3Id,rightMidLeg2Id);
-	break;
-
-	case rightUpperLeg3Id:
-	m = translate((torsoWidth+upperLegWidth), 0.3*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[rightUpperLeg3Id],1,0,0));
-	spider[rightUpperLeg3Id] = createNode(m,upperLeg,rightUpperLeg4Id,rightMidLeg3Id);
-	break;
-
-	case rightUpperLeg4Id:
-	m = translate((torsoWidth+upperLegWidth), 0.1*torsoHeight, 0.0);
-	m = mult(m,rotate(alpha[rightUpperLeg4Id],1,0,0));
-	spider[rightUpperLeg2Id] = createNode(m,upperLeg,null,rightMidLeg4Id);
-	break;
-
-	//left mid legs
-	case leftMidLeg1Id:
-	m = translate(-upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftMidLeg1Id],1,0,0));
-	spider[leftMidLeg1Id] = createNode(m,midLeg,null,leftLowerLeg1Id);
-	break;
-
-	case leftMidLeg2Id:
-	m = translate(-upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftMidLeg2Id],1,0,0));
-	spider[leftMidLeg2Id] = createNode(m,midLeg,null,leftLowerLeg2Id);
-	break;
-
-	case leftMidLeg3Id:
-	m = translate(-upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftMidLeg3Id],1,0,0));
-	spider[leftMidLeg3Id] = createNode(m,midLeg,null,leftLowerLeg3Id);
-	break;
-
-	case leftMidLeg4Id:
-	m = translate(-upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftMidLeg4Id],1,0,0));
-	spider[leftMidLeg4Id] = createNode(m,midLeg,null,leftLowerLeg4Id);
-	break;
-
-    //right mid legs
-	case rightMidLeg1Id:
-	m = translate(upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightMidLeg1Id],1,0,0));
-	spider[rightMidLeg1Id] = createNode(m,midLeg,null,rightLowerLeg1Id);
-	break;
-
-	case rightMidLeg2Id:
-	m = translate(upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightMidLeg2Id],1,0,0));
-	spider[rightMidLeg2Id] = createNode(m,midLeg,null,rightLowerLeg2Id);
-	break;
-
-	case rightMidLeg3Id:
-	m = translate(upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightMidLeg3Id],1,0,0));
-	spider[rightMidLeg3Id] = createNode(m,midLeg,null,rightLowerLeg3Id);
-	break;
-
-	case rightMidLeg4Id:
-	m = translate(upperLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightMidLeg4Id],1,0,0));
-	spider[rightMidLeg4Id] = createNode(m,midLeg,null,rightLowerLeg4Id);
-	break;
-
-	//left lower legs
+            break;	
+		    
 	case leftLowerLeg1Id:
-	m = translate(-midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftLowerLeg1Id],1,0,0));
-	spider[leftLowerLeg1Id] = createNode(m,lowerLeg,null,null);
-	break;
+	    m = translate(2*midLegHeight, 0.0, 0.0);
+	    m = mult(m,rotate(alpha[leftLowerLeg1Id],1,0,0));
+	    spider[leftLowerLeg1Id] = createNode(m,lowerLeg,null,null);
+	    break;
+	//left leg 2
+	case leftUpperLeg2Id:
+            m = translate(-(torsoWidth * 0.95), 0.3 * torsoHeight, 0.0);
+            m = mult(m,rotate(alpha[leftUpperLeg2Id], 0, 0, 1));
+            spider[leftUpperLeg2Id] = createNode(m,upperLeg,leftUpperLeg3Id,leftMidLeg2Id);
+            break;
 
+        case leftMidLeg2Id:
+            m = translate(2*upperLegHeight,0, 0.0);
+            m = mult(m,rotate(alpha[leftMidLeg2Id],1,0,0));
+            spider[leftMidLeg2Id] = createNode(m, midLeg,null,leftLowerLeg2Id);
+            break;
+		    
 	case leftLowerLeg2Id:
-	m = translate(-midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftLowerLeg2Id],1,0,0));
-	spider[leftLowerLeg2Id] = createNode(m,lowerLeg,null,null);
-	break;
-
+	    m = translate(2*midLegHeight, 0.0, 0.0);
+	    m = mult(m,rotate(alpha[leftLowerLeg2Id],1,0,0));
+	    spider[leftLowerLeg2Id] = createNode(m,lowerLeg,null,null);
+	    break;
+	
+	//left leg 3
+	case leftUpperLeg3Id:
+	     m = translate(-(torsoWidth), -0.4*torsoHeight, 0.0);
+	     m = mult(m,rotate(alpha[leftUpperLeg3Id],0,0,1));
+	     spider[leftUpperLeg3Id] = createNode(m,upperLeg,leftUpperLeg4Id,leftMidLeg3Id);
+	     break;
+	
+	case leftMidLeg3Id:
+	     m = translate(2*upperLegHeight, 0.0, 0.0);
+	     m = mult(m,rotate(alpha[leftMidLeg3Id],0,0,1));
+	     spider[leftMidLeg3Id] = createNode(m,midLeg,null,leftLowerLeg3Id);
+	     break;
+		
 	case leftLowerLeg3Id:
-	m = translate(-midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftLowerLeg3Id],1,0,0));
-	spider[leftLowerLeg3Id] = createNode(m,lowerLeg,null,null);
-	break;
-
+	     m = translate(2*midLegHeight, 0.0, 0.0);
+	     m = mult(m,rotate(alpha[leftLowerLeg3Id],0,0,1));
+	     spider[leftLowerLeg3Id] = createNode(m,lowerLeg,null,null);
+	     break;
+			
+	//left leg 4
+	case leftUpperLeg4Id:
+	     m = translate(-(0.7*torsoWidth), -0.8*torsoHeight, 0.0);
+	     m = mult(m,rotate(alpha[leftUpperLeg4Id],0,0,1));
+	     spider[leftUpperLeg4Id] = createNode(m,upperLeg,rightUpperLeg1Id,leftMidLeg4Id);
+	     break;
+	
+	case leftMidLeg4Id:
+             m = translate(2*upperLegHeight, 0.0, 0.0);
+	     m = mult(m,rotate(alpha[leftMidLeg4Id],0,0,1));
+	     spider[leftMidLeg4Id] = createNode(m,midLeg,null,leftLowerLeg4Id);
+	     break;
+		
 	case leftLowerLeg4Id:
-	m = translate(-midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[leftLowerLeg4Id],1,0,0));
-	spider[leftLowerLeg4Id] = createNode(m,lowerLeg,null,null);
-	break;
+	     m = translate(2*midLegHeight, 0.0, 0.0);
+	     m = mult(m,rotate(alpha[leftLowerLeg4Id],0,0,1));
+	     spider[leftLowerLeg4Id] = createNode(m,lowerLeg,null,null);
+	     break;
+	//right leg 1
+	case rightUpperLeg1Id:
+            m = translate((torsoWidth * 0.8), 0.7 * torsoHeight, 0.0);
+            m = mult(m,rotate(alpha[rightUpperLeg1Id], 0, 0, 1));
+            spider[rightUpperLeg1Id] = createNode(m,upperLeg,rightUpperLeg2Id,rightMidLeg1Id);
+            break;
 
-	//right lower legs
+        case rightMidLeg1Id:
+            m = translate(2*upperLegHeight,0, 0.0);
+            m = mult(m,rotate(alpha[rightMidLeg1Id],1,0,0));
+            spider[rightMidLeg1Id] = createNode(m, midLeg,null,rightLowerLeg1Id);
+            break;
+			
 	case rightLowerLeg1Id:
-	m = translate(midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightLowerLeg1Id],1,0,0));
-	spider[rightLowerLeg1Id] = createNode(m,lowerLeg,null,null);
-	break;
+	    m = translate(2*midLegHeight, 0.0, 0.0);
+	    m = mult(m,rotate(alpha[rightLowerLeg1Id],1,0,0));
+	    spider[rightLowerLeg1Id] = createNode(m,lowerLeg,null,null);
+	    break;
+			
+	//right leg 2
+	case rightUpperLeg2Id:
+            m = translate((torsoWidth * 0.95), 0.3 * torsoHeight, 0.0);
+            m = mult(m,rotate(alpha[rightUpperLeg2Id], 0, 0, 1));
+            spider[rightUpperLeg2Id] = createNode(m,upperLeg,rightUpperLeg3Id,rightMidLeg2Id);
+            break;
 
+        case rightMidLeg2Id:
+            m = translate(2*upperLegHeight,0.0, 0.0);
+            m = mult(m,rotate(alpha[rightMidLeg2Id],1,0,0));
+            spider[rightMidLeg2Id] = createNode(m, midLeg,null,rightLowerLeg2Id);
+            break;
+			
 	case rightLowerLeg2Id:
-	m = translate(midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightLowerLeg2Id],1,0,0));
-	spider[rightLowerLeg2Id] = createNode(m,lowerLeg,null,null);
-	break;
+	    m = translate(2*midLegHeight, 0.0, 0.0);
+	    m = mult(m,rotate(alpha[rightLowerLeg2Id],1,0,0));
+	    spider[rightLowerLeg2Id] = createNode(m,lowerLeg,null,null);
+	    break;
+	//right leg 3
+	case rightUpperLeg3Id:
+            m = translate((torsoWidth), -0.4*torsoHeight, 0.0);
+            m = mult(m,rotate(alpha[rightUpperLeg3Id], 0, 0, 1));
+            spider[rightUpperLeg3Id] = createNode(m,upperLeg,rightUpperLeg4Id,rightMidLeg3Id);
+            break;
 
+        case rightMidLeg3Id:
+            m = translate(2*upperLegHeight,0.0, 0.0);
+            m = mult(m,rotate(alpha[rightMidLeg3Id],1,0,0));
+            spider[rightMidLeg3Id] = createNode(m, midLeg,null,rightLowerLeg3Id);
+            break;
+			
 	case rightLowerLeg3Id:
-	m = translate(midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightLowerLeg3Id],1,0,0));
-	spider[rightLowerLeg3Id] = createNode(m,lowerLeg,null,null);
-	break;
+	    m = translate(2*midLegHeight, 0.0, 0.0);
+	    m = mult(m,rotate(alpha[rightLowerLeg3Id],1,0,0));
+	    spider[rightLowerLeg3Id] = createNode(m,lowerLeg,null,null);
+	    break;
+	//right leg 4
+	case rightUpperLeg4Id:
+            m = translate((0.7*torsoWidth), -0.8*torsoHeight, 0.0);
+            m = mult(m,rotate(alpha[rightUpperLeg4Id], 0, 0, 1));
+            spider[rightUpperLeg4Id] = createNode(m,upperLeg,null,rightMidLeg4Id);
+            break;
 
+        case rightMidLeg4Id:
+            m = translate(2*upperLegHeight,0.0, 0.0);
+            m = mult(m,rotate(alpha[rightMidLeg4Id],1,0,0));
+            spider[rightMidLeg4Id] = createNode(m, midLeg,null,rightLowerLeg4Id);
+            break;
+			
 	case rightLowerLeg4Id:
-	m = translate(midLegHeight, 0.0, 0.0);
-	m = mult(m,rotate(alpha[rightLowerLeg4Id],1,0,0));
-	spider[rightLowerLeg4Id] = createNode(m,lowerLeg,null,null);
-	break;
-
-
+	    m = translate(2*midLegHeight, 0.0, 0.0);
+	    m = mult(m,rotate(alpha[rightLowerLeg4Id],1,0,0));
+	    spider[rightLowerLeg4Id] = createNode(m,lowerLeg,null,null);
+	    break;
     }
- */
 }
+
+
 
 // Render Functions for parts
 // Applies post-multiplication
@@ -411,7 +369,7 @@ function tentacle() {
 
 function lowerTorso() {
     instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
+    instanceMatrix = mult(instanceMatrix, scale4(lowerTorsoWidth, lowerTorsoHeight, lowerTorsoWidth));
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
     renderSphere();
 }
@@ -424,7 +382,17 @@ function upperLeg() {
 }
 
 function midLeg() {
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(midLegHeight, midLegWidth, midLegHeight));
+    gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
+    renderCylinder();
+}
 
+function lowerLeg(){
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
+    instanceMatrix = mult(instanceMatrix, scale4(lowerLegHeight, lowerLegWidth, lowerLegHeight));
+    gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
+    renderCylinder();
 }
 
 
