@@ -40,17 +40,20 @@ let rightMidLeg4Id = 26;
 let rightLowerLeg4Id = 27;
 
 // Spider body part quantities
-let torsoHeight = 4.0;
-let torsoWidth = 2.0;
+let torsoHeight = 3.0;
+let torsoWidth = 2.5;
+
+let lowerTorsoHeight = 4.0;
+let lowerTorsoWidth = 3.0;
 
 let upperLegHeight = 2.0;
 let upperLegWidth = 1.5;
 
-let midLegHeight = 4.0;
+let midLegHeight = 2.0;
 let midLegWidth = 1.0;
 
-let lowerLegHeight = 3.0;
-let lowerLegWidth = 1.0;
+let lowerLegHeight = 2.0;
+let lowerLegWidth = 0.75;
 
 let tentacleHeight = 3.0;
 let tentacleMid = 0.5;
