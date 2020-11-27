@@ -147,7 +147,13 @@ function renderPrism() {
     gl.drawElements(gl.LINE_LOOP, prismMetadata.indexCount - drawnPoints, gl.UNSIGNED_BYTE,
         Uint8Array.BYTES_PER_ELEMENT * (drawnPoints + cylinderMetadata.indexCount));
 }
-
+function scale4(a, b, c) {
+    var result = mat4();
+    result[0][0] = a;
+    result[1][1] = b;
+    result[2][2] = c;
+    return result;
+ }
 
 function createNode(transform, render, sibling, child){
     return {
