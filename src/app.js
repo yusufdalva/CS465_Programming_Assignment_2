@@ -2,9 +2,9 @@ let gl;
 let canvas;
 let program;
 let spherePointCount;
-let toSubdivide = 4;
+let toSubdivide = 5;
 
-var radius = 1.5;
+var radius = 0.5;
 var theta  = 0.0;
 var phi    = 0.0;
 var dr = 5.0 * Math.PI/180.0;
@@ -15,7 +15,7 @@ let prismMetadata = {};
 
 let vertexCount = 0;
 
-let alpha = [0, 0, 0, 0, 135, 0, 180, 135, 0, 0, 225,0,0,225,0,0,45,0,0,45,0,0,315,0,0,315,0,0]; // alpha is the joint angle
+let alpha = [0, 0, 0, 0, 135, 0, 0, 135, 0, 0, 225,0,0,225,0,0,45,0,0,45,0,0,315,0,0,315,0,0]; // alpha is the joint angle
 
 let eye;
 let at = vec3(0.0, 0.0, 0.0);
@@ -31,7 +31,7 @@ var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
 var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
 var materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 var ambientColor, diffuseColor, specularColor;
-var materialShininess = 50.0;
+var materialShininess = 100.0;
 let modelViewMatrix, projectionMatrix;
 let mvMatrixLoc, prjMatrixLoc;
 
@@ -70,7 +70,16 @@ function init() {
     specularProduct = mult(lightSpecular, materialSpecular);
 	console.log(specularProduct);
   
-
+  // Generate Sphere Points
+    let sphere = tetrahedron(toSubdivide);
+    let sphereVertices = sphere[1];
+    let sphereNormals = sphere[2];
+    vertexCount += sphereVertices.length;
+    spherePointCount = sphere[0];
+    sphereMetadata.vertexCount = sphereVertices.length;
+    sphereMetadata.vertices = sphereVertices;
+    sphereMetadata.normals = sphereNormals;
+  
     
 
     // Generate Cylinder Points - uses index structure
@@ -82,8 +91,8 @@ function init() {
     cylinderMetadata.noOfSides = 30;
     cylinderMetadata.vertexCount = cylinderVertices.length;
     cylinderMetadata.vertices = cylinderVertices;
-    cylinderMetadata.indexCount = cylinderIndices.length;
-    cylinderMetadata.indices = cylinderIndices;
+    //cylinderMetadata.indexCount = cylinderIndices.length;
+    //cylinderMetadata.indices = cylinderIndices;
     cylinderMetadata.normals = cylinderNormals;
 
     console.log(cylinderMetadata.vertexCount);
@@ -98,38 +107,23 @@ function init() {
     prismMetadata.noOfSides = 4;
     prismMetadata.vertexCount = prismVertices.length;
     prismMetadata.vertices = prismVertices;
-    prismMetadata.indexCount = prismIndices.length;
-    prismMetadata.indices = prismIndices;
+    //prismMetadata.indexCount = prismIndices.length;
+    //prismMetadata.indices = prismIndices;
     prismMetadata.normals = prismNormals;
    
-      // Generate Sphere Points
-    let sphere = tetrahedron(toSubdivide);
-    let sphereVertices = sphere[1];
-    let sphereNormals = sphere[2];
-    vertexCount += sphereVertices.length;
-    spherePointCount = sphere[0];
-    sphereMetadata.vertexCount = sphereVertices.length;
-    sphereMetadata.vertices = sphereVertices;
-    sphereMetadata.normals = sphereNormals;
-    console.log("Sphere normals " + sphereNormals.length);
-    console.log("prism normals" + prismNormals.length);
-    console.log("cylinder normals " + cylinderNormals.length);
-
-    console.log("Sphere vertices " + sphereVertices.length);
-    console.log("prism vertices" + prismVertices.length);
-    console.log("cylinder vertices " + cylinderVertices.length);
     
-    let indices = cylinderIndices.concat(prismIndices);
-
+    
+    //let indices = cylinderIndices.concat(prismIndices);
+    
     let vertices = cylinderVertices;
     vertices = vertices.concat(prismVertices);
     vertices = vertices.concat(sphereVertices);
-    console.log("total vERTICES" +vertices.length);
+    
    
     let normals = cylinderMetadata.normals;
     normals = normals.concat(prismMetadata.normals);
     normals = normals.concat(sphereNormals);
-    console.log("total normals "+ normals.length);
+    
     
     console.log("Total number of vertices: " + vertices.length.toString());
     console.log("Total Number of indices: " + indices.length.toString());
@@ -137,17 +131,14 @@ function init() {
     // All data transfer to the buffers are done here
 
       //NORMALS
+      //NORMALS
     var nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
     gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
       
     var vNormal = gl.getAttribLocation( program, "vNormal" );
     gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vNormal);
-
-    let iBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indices), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(vNormal);
 
     let vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -157,9 +148,6 @@ function init() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
   
-
-    
-    
 
     mvMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     prjMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
@@ -201,7 +189,6 @@ function render() {
     traverse(torsoId);
     requestAnimFrame(render);
 }
-
 // Renders a sphere primitive
 function renderSphere() {
     for (let pointIdx = 0; pointIdx < sphereMetadata.vertexCount; pointIdx += 3) {
@@ -211,24 +198,22 @@ function renderSphere() {
 
 function renderCylinder() {
     let drawnPoints = 0;
-    gl.drawElements(gl.TRIANGLE_FAN, cylinderMetadata.noOfSides, gl.UNSIGNED_BYTE, Uint8Array.BYTES_PER_ELEMENT * drawnPoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints, cylinderMetadata.noOfSides);
     drawnPoints += cylinderMetadata.noOfSides;
-    gl.drawElements(gl.TRIANGLE_FAN, cylinderMetadata.noOfSides, gl.UNSIGNED_BYTE, Uint8Array.BYTES_PER_ELEMENT * drawnPoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints, cylinderMetadata.noOfSides);
     drawnPoints += cylinderMetadata.noOfSides;
-    gl.drawElements(gl.TRIANGLE_FAN, cylinderMetadata.indexCount - drawnPoints, gl.UNSIGNED_BYTE, Uint8Array.BYTES_PER_ELEMENT * drawnPoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints, cylinderMetadata.vertexCount - drawnPoints);
 }
 
 function renderPrism() {
     let drawnPoints = 0;
-    gl.drawElements(gl.TRIANGLE_FAN, prismMetadata.noOfSides, gl.UNSIGNED_BYTE,
-        Uint8Array.BYTES_PER_ELEMENT * (drawnPoints + cylinderMetadata.indexCount));
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount, prismMetadata.noOfSides);
     drawnPoints += prismMetadata.noOfSides;
-    gl.drawElements(gl.TRIANGLE_FAN, prismMetadata.noOfSides, gl.UNSIGNED_BYTE,
-        Uint8Array.BYTES_PER_ELEMENT * (drawnPoints + cylinderMetadata.indexCount));
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount, prismMetadata.noOfSides);
     drawnPoints += prismMetadata.noOfSides;
-    gl.drawElements(gl.TRIANGLE_FAN, prismMetadata.indexCount - drawnPoints, gl.UNSIGNED_BYTE,
-        Uint8Array.BYTES_PER_ELEMENT * (drawnPoints + cylinderMetadata.indexCount));
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount, prismMetadata.vertexCount - drawnPoints);
 }
+
 function scale4(a, b, c) {
     var result = mat4();
     result[0][0] = a;
@@ -251,6 +236,8 @@ function traverse(Id) {
    if(Id == null) return;
    stack.push(modelViewMatrix);
    modelViewMatrix = mult(modelViewMatrix, spider[Id].transform);
+   console.log("THETA " + theta);
+   console.log("PHI " + phi);
    eye = vec3(radius*Math.sin(theta)*Math.cos(phi), 
         radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
     modelViewMatrix = mult(modelViewMatrix,lookAt(eye,at,up));
@@ -270,17 +257,20 @@ function initNodes(partId) {
 
     switch (partId) {
         case torsoId:
-            m = mult(m, rotate(alpha[torsoId], 0, 1, 0)); // Rotate around y - by euler angle
+            m = mult(m, rotate(alpha[torsoId], 0, 1,0)); // Rotate around y - by euler angle
+            //m = mult(m,rotate(225,0,1,0));
             spider[torsoId] = createNode(m, torso, null, leftTentacleId);
             break;
         case leftTentacleId:
             m = translate(-(torsoWidth/2), torsoHeight,0.0);
-            m = mult(m, rotate(alpha[leftTentacleId], 0, 1, 0));
+          //  m = mult(m, rotate(alpha[leftTentacleId], 0, 1, 0));
+            m = mult(m,rotate(180,0,1,0));
             spider[leftTentacleId] = createNode(m, tentacle, rightTentacleId, null);
             break;
 
         case rightTentacleId:
             m = translate(torsoWidth/2, torsoHeight, 0.0);
+            m = mult(m,rotate(180,0,1,0));
             spider[rightTentacleId] = createNode(m, tentacle, lowerTorsoId, null);
             break;
 
@@ -303,7 +293,7 @@ function initNodes(partId) {
 	//BUNDA Bİ DEĞİŞİKLİK VAR
 	case leftLowerLeg1Id:
 	    m = translate(2*midLegHeight, 0.0, 0.0);
-	    m = mult(m,rotate(alpha[leftLowerLeg1Id],1,0,0));
+	    m = mult(m,rotate(alpha[leftLowerLeg1Id],0,0,1));
 	    spider[leftLowerLeg1Id] = createNode(m,lowerLeg,null,null);
 	    break;
 	//left leg 2
@@ -446,15 +436,12 @@ function torso() {
     
     instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
-    
-   
     normalMatrix = [
         vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
         vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
         vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
     ];
-    console.log(normalMatrix);
-    //normalMatrix = transpose(normalMatrix);
+    
     gl.uniformMatrix3fv(normalMatrixLoc, false, flatten(normalMatrix) );
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
     renderSphere();

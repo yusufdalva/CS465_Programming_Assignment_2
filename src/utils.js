@@ -84,7 +84,7 @@ function getPrism(sides, rotateAxis, radius, height, startIndex) {
     
    generateNormals(bottom,top,sides);
     
-    for (let side = 0; side < sides; side++) {
+    /*for (let side = 0; side < sides; side++) {
         let bottomIndices = [(side % sides), ((side + 1) % sides)];
         let topIndices = [(side % sides) + sides, ((side + 1) % sides) + sides];
         // Generate quad for prism generation
@@ -93,7 +93,7 @@ function getPrism(sides, rotateAxis, radius, height, startIndex) {
         indices.push(bottomIndices[1] + startIndex);
         indices.push(topIndices[1] + startIndex);
      
-    }
+    }*/
     
     return [vertices, indices,normals];
 }
@@ -115,7 +115,7 @@ function generateNormals(bottom,top,sides){
     startVertex = 0;
     for(let j = 0; j < sides; j++){
         
-        quad(top[j],top[(j+1)%sides],bottom[j],bottom[(j+1)%sides]);
+        quad(top[j],bottom[j],bottom[(j+1)%sides],top[(j+1)%sides]);
     }
     //top normals
     for(let k = 0; k < sides;k++){
@@ -124,10 +124,11 @@ function generateNormals(bottom,top,sides){
     }
 }
 //generating vertices and normals for sides of prism
+//quad(top[j],bottom[j],bottom[(j+1)%sides],top[(j+1)%sides]);
 function quad(a, b, c, d) {
     console.log(a);
-    let t1 = subtract(b, d);
-    let t2 = subtract(a, d);
+    let t1 = subtract(d, c);
+    let t2 = subtract(c, a);
     let normal = cross(t1, t2);
     normal = vec3(normal);
 
@@ -154,9 +155,9 @@ function triangle(a, b, c) {
      pointsArray.push(b);      
      pointsArray.push(c);
     
-     normalsArray.push(a[0],a[1], a[2], 0.0);
-     normalsArray.push(b[0],b[1], b[2], 0.0);
-     normalsArray.push(c[0],c[1], c[2], 0.0);
+     normalsArray.push(vec4(a[0],a[1], a[2], 0.0));
+     normalsArray.push(vec4(b[0],b[1], b[2], 0.0));
+     normalsArray.push(vec4(c[0],c[1], c[2], 0.0));
 	
      index += 3;
 }
