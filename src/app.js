@@ -2,7 +2,7 @@ let gl;
 let canvas;
 let program;
 let spherePointCount;
-let toSubdivide = 6;
+let toSubdivide = 4;
 
 var radius = 0.3;
 var theta  = 0.0;
@@ -15,7 +15,7 @@ let prismMetadata = {};
 
 let vertexCount = 0;
 
-let alpha = [0, 0, 0, 0, 135, 0, 0, 135, 0, 0, 225,0,0,225,0,0,45,0,0,45,0,0,315,0,0,315,0,0]; // alpha is the joint angle
+let alpha = [0, 30, 0, 0, 135, 0, 0, 135, 0, 0, 225,0,0,225,0,0,45,0,0,45,0,0,315,0,0,315,0,0]; // alpha is the joint angle
 
 let eye;
 let at = vec3(0.0, 0.0, 0.0);
@@ -99,35 +99,55 @@ function init() {
   
 
     // Generate Square Prism - uses index structure
-    let prism = getPrism(4, 0, 0.5, 0.5, vertexCount);
+    let prism = getPrism(4, 2, 0.5, 0.5, vertexCount);
     let prismVertices = prism[0];
     vertexCount += prismVertices.length;
     let prismIndices = prism[1];
     let prismNormals = prism[2];
     prismMetadata.noOfSides = 4;
     prismMetadata.vertexCount = prismVertices.length;
+    console.log(prismMetadata.vertexCount);
     prismMetadata.vertices = prismVertices;
-    //prismMetadata.indexCount = prismIndices.length;
-    //prismMetadata.indices = prismIndices;
     prismMetadata.normals = prismNormals;
    
     
-    
-    //let indices = cylinderIndices.concat(prismIndices);
+
     
    
     
     
-    console.log("Total number of vertices: " + vertices.length.toString());
-    console.log("Total Number of indices: " + indices.length.toString());
+    //console.log("Total number of vertices: " + vertices.length.toString());
+    //console.log("Total Number of indices: " + indices.length.toString());
 
     // All data transfer to the buffers are done here
 
       //NORMALS
     
     //SPHERE BUFFERS
-    
-  
+    let vertices = sphereMetadata.vertices;
+    vertices = vertices.concat(cylinderMetadata.vertices);
+    vertices = vertices.concat(prismMetadata.vertices);
+
+    let normals = sphereMetadata.normals;
+    normals = normals.concat(cylinderMetadata.normals);
+    normals = normals.concat(prismMetadata.normals);
+
+    let nBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
+
+    let vNormal = gl.getAttribLocation( program, "vNormal" );
+    gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray(vNormal);
+
+    let vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+    let vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+
 
     mvMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     prjMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
@@ -213,10 +233,13 @@ window.onload = init;
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     traverse(torsoId);
+    //renderPrism();
     requestAnimFrame(render);
 }
+
 // Renders a sphere primitive
 function renderSphere() {
+    /*
     var snBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, snBuffer);
     gl.bufferData( gl.ARRAY_BUFFER, flatten(sphereMetadata.normals), gl.STATIC_DRAW );
@@ -232,12 +255,14 @@ function renderSphere() {
     var svPosition = gl.getAttribLocation( program, "vPosition");
     gl.vertexAttribPointer(svPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(svPosition);
+     */
     for (let pointIdx = 0; pointIdx < sphereMetadata.vertexCount; pointIdx += 3) {
-        gl.drawArrays(gl.TRIANGLES, pointIdx , 3); // Render in triangular wires
+        gl.drawArrays(gl.TRIANGLES, pointIdx, 3); // Render in triangular wires
     }
 }
 
 function renderCylinder() {
+    /*
     let vertices = cylinderMetadata.vertices;
     vertices = vertices.concat(prismMetadata.vertices);
    
@@ -258,15 +283,17 @@ function renderCylinder() {
     let vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
+     */
     let drawnPoints = 0;
-    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints, cylinderMetadata.noOfSides);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + sphereMetadata.vertexCount, cylinderMetadata.noOfSides);
     drawnPoints += cylinderMetadata.noOfSides;
-    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints, cylinderMetadata.noOfSides);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + sphereMetadata.vertexCount, cylinderMetadata.noOfSides);
     drawnPoints += cylinderMetadata.noOfSides;
-    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints, cylinderMetadata.vertexCount - drawnPoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + sphereMetadata.vertexCount, cylinderMetadata.vertexCount - drawnPoints);
 }
 
 function renderPrism() {
+    /*
     let vertices = cylinderMetadata.vertices;
     vertices = vertices.concat(prismMetadata.vertices);
    
@@ -287,12 +314,13 @@ function renderPrism() {
     let vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
+     */
     let drawnPoints = 0;
-    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount, prismMetadata.noOfSides);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount + sphereMetadata.vertexCount, prismMetadata.noOfSides);
     drawnPoints += prismMetadata.noOfSides;
-    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount, prismMetadata.noOfSides);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount + sphereMetadata.vertexCount, prismMetadata.noOfSides);
     drawnPoints += prismMetadata.noOfSides;
-    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount, prismMetadata.vertexCount - drawnPoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount + sphereMetadata.vertexCount, prismMetadata.vertexCount - drawnPoints);
 }
 
 function scale4(a, b, c) {
@@ -317,8 +345,6 @@ function traverse(Id) {
    if(Id == null) return;
    stack.push(modelViewMatrix);
    modelViewMatrix = mult(modelViewMatrix, spider[Id].transform);
-   console.log("THETA " + theta);
-   console.log("PHI " + phi);
    eye = vec3(radius*Math.sin(theta)*Math.cos(phi), 
         radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
     modelViewMatrix = mult(modelViewMatrix,lookAt(eye,at,up));
