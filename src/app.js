@@ -2,9 +2,9 @@ let gl;
 let canvas;
 let program;
 let spherePointCount;
-let toSubdivide = 5;
+let toSubdivide = 6;
 
-var radius = 0.5;
+var radius = 0.3;
 var theta  = 0.0;
 var phi    = 0.0;
 var dr = 5.0 * Math.PI/180.0;
@@ -22,7 +22,7 @@ let at = vec3(0.0, 0.0, 0.0);
 let up = vec3(0.0, 1.0, 0.0);
 
 //light stuff
-var lightPosition = vec4(1.0, 1.0, 1.0, 0 );
+var lightPosition = vec4(1.0, 1.0, 1.0, 0.0 );
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
@@ -115,14 +115,7 @@ function init() {
     
     //let indices = cylinderIndices.concat(prismIndices);
     
-    let vertices = cylinderVertices;
-    vertices = vertices.concat(prismVertices);
-    vertices = vertices.concat(sphereVertices);
-    
    
-    let normals = cylinderMetadata.normals;
-    normals = normals.concat(prismMetadata.normals);
-    normals = normals.concat(sphereNormals);
     
     
     console.log("Total number of vertices: " + vertices.length.toString());
@@ -131,22 +124,9 @@ function init() {
     // All data transfer to the buffers are done here
 
       //NORMALS
-      //NORMALS
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
-      
-    var vNormal = gl.getAttribLocation( program, "vNormal" );
-    gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray(vNormal);
-
-    let vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
-
-    let vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
+    
+    //SPHERE BUFFERS
+    
   
 
     mvMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
@@ -161,12 +141,58 @@ function init() {
     gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( gl.getUniformLocation( program, "projectionMatrix"), false, flatten(projectionMatrix) );
     gl.uniformMatrix3fv( gl.getUniformLocation( program, "normalMatrix"), false, flatten(normalMatrix));
-    document.getElementById("Button0").onclick = function(){radius *= 2.0;};
-    document.getElementById("Button1").onclick = function(){radius *= 0.5;};
     document.getElementById("Button2").onclick = function(){theta += dr;};
     document.getElementById("Button3").onclick = function(){theta -= dr;};
     document.getElementById("Button4").onclick = function(){phi += dr;};
     document.getElementById("Button5").onclick = function(){phi -= dr;};
+
+    //SLIDERSSS********************
+    /*document.getElementById("slider0").onchange = function() {
+        theta[torsoId ] = event.srcElement.value;
+        initNodes(torsoId);
+    };
+        document.getElementById("slider1").onchange = function() {
+        theta[head1Id] = event.srcElement.value;
+        initNodes(head1Id);
+    };
+
+    document.getElementById("slider2").onchange = function() {
+         theta[leftUpperArmId] = event.srcElement.value;
+         initNodes(leftUpperArmId);
+    };
+    document.getElementById("slider3").onchange = function() {
+         theta[leftLowerArmId] =  event.srcElement.value;
+         initNodes(leftLowerArmId);
+    };
+     
+        document.getElementById("slider4").onchange = function() {
+        theta[rightUpperArmId] = event.srcElement.value;
+        initNodes(rightUpperArmId);
+    };
+    document.getElementById("slider5").onchange = function() {
+         theta[rightLowerArmId] =  event.srcElement.value;
+         initNodes(rightLowerArmId);
+    };
+        document.getElementById("slider6").onchange = function() {
+        theta[leftUpperLegId] = event.srcElement.value;
+        initNodes(leftUpperLegId);
+    };
+    document.getElementById("slider7").onchange = function() {
+         theta[leftLowerLegId] = event.srcElement.value;
+         initNodes(leftLowerLegId);
+    };
+    document.getElementById("slider8").onchange = function() {
+         theta[rightUpperLegId] =  event.srcElement.value;
+         initNodes(rightUpperLegId);
+    };
+        document.getElementById("slider9").onchange = function() {
+        theta[rightLowerLegId] = event.srcElement.value;
+        initNodes(rightLowerLegId);
+    };
+    document.getElementById("slider10").onchange = function() {
+         theta[head2Id] = event.srcElement.value;
+         initNodes(head2Id);
+    };*/
 
     for(let i=0; i< numNodes; i++) initNodes(i);
     gl.uniform4fv( gl.getUniformLocation(program, 
@@ -191,12 +217,47 @@ function render() {
 }
 // Renders a sphere primitive
 function renderSphere() {
+    var snBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, snBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(sphereMetadata.normals), gl.STATIC_DRAW );
+    
+    var svNormal = gl.getAttribLocation( program, "vNormal" );
+    gl.vertexAttribPointer( svNormal, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( svNormal);
+
+    var svBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, svBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(sphereMetadata.vertices), gl.STATIC_DRAW);
+    
+    var svPosition = gl.getAttribLocation( program, "vPosition");
+    gl.vertexAttribPointer(svPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(svPosition);
     for (let pointIdx = 0; pointIdx < sphereMetadata.vertexCount; pointIdx += 3) {
-        gl.drawArrays(gl.TRIANGLES, pointIdx + cylinderMetadata.vertexCount + prismMetadata.vertexCount, 3); // Render in triangular wires
+        gl.drawArrays(gl.TRIANGLES, pointIdx , 3); // Render in triangular wires
     }
 }
 
 function renderCylinder() {
+    let vertices = cylinderMetadata.vertices;
+    vertices = vertices.concat(prismMetadata.vertices);
+   
+    let normals = cylinderMetadata.normals;
+    normals = normals.concat(prismMetadata.normals);
+    var nBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
+      
+    var vNormal = gl.getAttribLocation( program, "vNormal" );
+    gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray(vNormal);
+
+    let vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+    let vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
     let drawnPoints = 0;
     gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints, cylinderMetadata.noOfSides);
     drawnPoints += cylinderMetadata.noOfSides;
@@ -206,6 +267,26 @@ function renderCylinder() {
 }
 
 function renderPrism() {
+    let vertices = cylinderMetadata.vertices;
+    vertices = vertices.concat(prismMetadata.vertices);
+   
+    let normals = cylinderMetadata.normals;
+    normals = normals.concat(prismMetadata.normals);
+    var nBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
+      
+    var vNormal = gl.getAttribLocation( program, "vNormal" );
+    gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray(vNormal);
+
+    let vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+    let vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
     let drawnPoints = 0;
     gl.drawArrays(gl.TRIANGLE_FAN, drawnPoints + cylinderMetadata.vertexCount, prismMetadata.noOfSides);
     drawnPoints += prismMetadata.noOfSides;
@@ -280,7 +361,7 @@ function initNodes(partId) {
             break;
         // Left Leg 1
         case leftUpperLeg1Id:
-            m = translate(-(torsoWidth * 0.8), 0.7 * torsoHeight, 0.0);
+            m = translate(-(torsoWidth * 0.7), 0.7 * torsoHeight, 0.0);
             m = mult(m,rotate(alpha[leftUpperLeg1Id], 0, 0, 1));
             spider[leftUpperLeg1Id] = createNode(m,upperLeg,leftUpperLeg2Id,leftMidLeg1Id);
             break;
@@ -298,7 +379,7 @@ function initNodes(partId) {
 	    break;
 	//left leg 2
 	case leftUpperLeg2Id:
-            m = translate(-(torsoWidth * 0.95), 0.3 * torsoHeight, 0.0);
+            m = translate(-(torsoWidth * 0.9), 0.3 * torsoHeight, 0.0);
             m = mult(m,rotate(alpha[leftUpperLeg2Id], 0, 0, 1));
             spider[leftUpperLeg2Id] = createNode(m,upperLeg,leftUpperLeg3Id,leftMidLeg2Id);
             break;
@@ -317,7 +398,7 @@ function initNodes(partId) {
 	
 	//left leg 3
 	case leftUpperLeg3Id:
-	     m = translate(-(torsoWidth), -0.4*torsoHeight, 0.0);
+	     m = translate(-(0.85*torsoWidth), -0.4*torsoHeight, 0.0);
 	     m = mult(m,rotate(alpha[leftUpperLeg3Id],0,0,1));
 	     spider[leftUpperLeg3Id] = createNode(m,upperLeg,leftUpperLeg4Id,leftMidLeg3Id);
 	     break;
@@ -336,7 +417,7 @@ function initNodes(partId) {
 			
 	//left leg 4
 	case leftUpperLeg4Id:
-	     m = translate(-(0.7*torsoWidth), -0.8*torsoHeight, 0.0);
+	     m = translate(-(0.6*torsoWidth), -0.8*torsoHeight, 0.0);
 	     m = mult(m,rotate(alpha[leftUpperLeg4Id],0,0,1));
 	     spider[leftUpperLeg4Id] = createNode(m,upperLeg,rightUpperLeg1Id,leftMidLeg4Id);
 	     break;
@@ -354,7 +435,7 @@ function initNodes(partId) {
 	     break;
 	//right leg 1
 	case rightUpperLeg1Id:
-            m = translate((torsoWidth * 0.8), 0.7 * torsoHeight, 0.0);
+            m = translate((torsoWidth * 0.7), 0.7 * torsoHeight, 0.0);
             m = mult(m,rotate(alpha[rightUpperLeg1Id], 0, 0, 1));
             spider[rightUpperLeg1Id] = createNode(m,upperLeg,rightUpperLeg2Id,rightMidLeg1Id);
             break;
@@ -373,7 +454,7 @@ function initNodes(partId) {
 			
 	//right leg 2
 	case rightUpperLeg2Id:
-            m = translate((torsoWidth * 0.95), 0.3 * torsoHeight, 0.0);
+            m = translate((0.9*torsoWidth * 0.95), 0.3 * torsoHeight, 0.0);
             m = mult(m,rotate(alpha[rightUpperLeg2Id], 0, 0, 1));
             spider[rightUpperLeg2Id] = createNode(m,upperLeg,rightUpperLeg3Id,rightMidLeg2Id);
             break;
@@ -391,7 +472,7 @@ function initNodes(partId) {
 	    break;
 	//right leg 3
 	case rightUpperLeg3Id:
-            m = translate((torsoWidth), -0.4*torsoHeight, 0.0);
+            m = translate((0.85*torsoWidth), -0.4*torsoHeight, 0.0);
             m = mult(m,rotate(alpha[rightUpperLeg3Id], 0, 0, 1));
             spider[rightUpperLeg3Id] = createNode(m,upperLeg,rightUpperLeg4Id,rightMidLeg3Id);
             break;
@@ -409,7 +490,7 @@ function initNodes(partId) {
 	    break;
 	//right leg 4
 	case rightUpperLeg4Id:
-            m = translate((0.7*torsoWidth), -0.8*torsoHeight, 0.0);
+            m = translate((0.6*torsoWidth), -0.8*torsoHeight, 0.0);
             m = mult(m,rotate(alpha[rightUpperLeg4Id], 0, 0, 1));
             spider[rightUpperLeg4Id] = createNode(m,upperLeg,null,rightMidLeg4Id);
             break;

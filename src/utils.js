@@ -84,17 +84,6 @@ function getPrism(sides, rotateAxis, radius, height, startIndex) {
     
    generateNormals(bottom,top,sides);
     
-    /*for (let side = 0; side < sides; side++) {
-        let bottomIndices = [(side % sides), ((side + 1) % sides)];
-        let topIndices = [(side % sides) + sides, ((side + 1) % sides) + sides];
-        // Generate quad for prism generation
-        indices.push(topIndices[0] + startIndex);
-        indices.push(bottomIndices[0] + startIndex);
-        indices.push(bottomIndices[1] + startIndex);
-        indices.push(topIndices[1] + startIndex);
-     
-    }*/
-    
     return [vertices, indices,normals];
 }
 
