@@ -16,8 +16,8 @@ let prismMetadata = {};
 let animationFrames= "";
 let currentFrame = "";
 let keyFrame = 0;
-let blockAnimation = false;
-
+let keepAnimating = true;
+let totalKeyFrames = 0;
 let vertexCount = 0;
 
 let alpha = [ // alpha is the joint angle
@@ -210,7 +210,8 @@ function init() {
 window.onload = init;
 
 function render() {
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    console.log("İÇİNDE");
+    gl.clear(  gl.DEPTH_BUFFER_BIT);
     traverse(torsoId);
     requestAnimFrame(render);
 }
@@ -662,10 +663,18 @@ function loadAnimation(){
 **/ 
 function renderKeyFrame() {
     var frame = animationFrames.split("\n");
-    if (blockAnimation == false) {
+    totalKeyFrames = frame.length;
+    /*if(keyFrame>= totalKeyFrames){
+        console.log("BÜYÜKK");
+        render();
+    }*/
+    if (keepAnimating === true) {
+        
         console.log(frame[keyFrame]);
         processFrameMovement(frame[keyFrame]);
+        console.log("KEY FRAMEE " + keyFrame )
         keyFrame++;
+        
     }
 }
 
@@ -675,6 +684,9 @@ function playAnimation() {
     setInterval(renderKeyFrame, 10);
 }
 
+    
+
+
 
 /**
  *Processes frame movements by 30 factor which is half of fp this is for a more smooth animation
@@ -682,11 +694,13 @@ function playAnimation() {
  *		https://github.com/celikkoseoglu/CS465-Bilkent/tree/master/Assignment2
 **/
 function processFrameMovement(frames) {
-    if (frames !== undefined) {
+    
+    if(frames){
+        keepAnimating = false; 
         let fullMotion = ""; 
         let txtFrames = frames.split(",");
-        //console.log(txtFrames);
-        blockAnimation = true; 
+        
+        
         let counter = 0;
         let nodeId = 0;
         for (var j = 0; j < 30; j++) { 
@@ -701,19 +715,15 @@ function processFrameMovement(frames) {
                 if(i < txtFrames.length - 3){
                     counter = i;
                     differenceX = parseFloat(txtFrames[counter]) - alpha[nodeId][0];
-                    console.log(differenceX);
                     ++counter;
                     differenceY = parseFloat(txtFrames[counter]) - alpha[nodeId][1];
-                    console.log(differenceY);
                     ++counter;
                     differenceZ = parseFloat(txtFrames[counter]) - alpha[nodeId][2];
-                    console.log(differenceZ);
                     nodeId++;
                 }
                 
     
                 if(i == txtFrames.length - 3){
-                   
                     counter = i;
                     differenceX = parseFloat(txtFrames[counter]) - moveAmounts[0];
                     ++counter;
@@ -773,11 +783,10 @@ function runAnimation(fullMotion) {
             for (i = 0; i < numNodes; i++)
                 initNodes(i);
             j++;
-
             if (j < motionByKeyFrame.length)
                 animate();
             else
-                blockAnimation = true;
+                keepAnimating = true;
         }, 1000 / 240)
     }
     animate();
