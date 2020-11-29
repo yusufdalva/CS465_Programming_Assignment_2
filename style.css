@@ -1,0 +1,132 @@
+html {
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-image: url("background.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.slider {
+    height: 13px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+.grid-container {
+    display: grid;
+    color: black;
+    grid-template-columns: 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1%;
+    grid-gap: 5px;
+    background-color: #c18862;
+    padding: 5px;
+    margin-top: 30px;
+}
+.gridContainer2{
+    text-align: center;
+    color: white;
+    grid-template-columns: 25% 25% 50%;
+    grid-gap: 5px;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+.panel {
+    padding: 5px 2px;
+    width: 99%;
+    display: none;
+    background-color: white;
+    overflow: hidden;
+}
+
+#gl-canvas {
+    display: block;
+    margin: 0 auto;
+    border: 5px solid rgb(116, 48, 34);
+}
+
+.div{
+    background: #a83333;
+}
+.slidecontainer {
+    width: 100%;
+}
+
+#buttons {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#title {
+    text-align:center;
+    color: white;
+}
+
+input[type=range]{
+    -webkit-appearance: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 300px;
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: saddlebrown;
+    margin-top: -4px;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+button {
+    background-color: white; /* Green */
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+input[type=button] {
+    background-color: white; /* Green */
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+input[type=file]::-webkit-file-upload-button {
+    background-color: white; /* Green */
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+
+

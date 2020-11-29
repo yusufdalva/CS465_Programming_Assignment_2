@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Programming Assignment 2</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script id="vertex-shader" type="x-shader/x-vertex">
     attribute vec4 vPosition;
     attribute vec4 vNormal;
@@ -74,78 +77,7 @@
             gl_FragColor = fColor;
         }
     </script>
-    <style>
-        .div{
-            background: #a83333; 
-        }
-        .slidecontainer {
-            width: 100%;
-        }
-        
-        .slider {
-            width: 80%;
-            height: 13px;
-            background: #d3d3d3;
-            outline: none;
-            opacity: 0.7;
-            -webkit-transition: .2s;
-            transition: opacity .2s;
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1%;
-            grid-gap: 5px;
-            background-color: #c18862;
-            padding: 5px;
-        }
-        .grid-container2{
-            display: grid;
-            grid-template-columns: 25% 25% 50%;
-            grid-gap: 5px;
-            background-color: #c18862;
-            padding: 5px;
-        }
-        .panel {
-            padding: 5 2px;
-            width: 99%;
-            display: none;
-            background-color: white;
-            overflow: hidden;
-        }
-        
-        </style>
-<div class = "gridContainer2">
-       
-    <p> </p>
-    <button id = "Button2">Increase theta</button>
-    <button id = "Button3">Decrease theta</button>
-    <button id = "Button4">Increase phi</button>
-    <button id = "Button5">Decrease phi</button>
-    <p></p>
-    <div>
-        <div>
-            Move Along X
-        <input  type="range" class="slider82" oninput="moveAlongX()" 
-      min="-15" max="15" step="1" value="0"/>
-        </div>
-        <div>
-            Move Along Y
-            <input  type="range" class="slider83" oninput="moveAlongY()" 
-            min="-20" max="20" step="2" value="0"/>
-        </div>
-        
-        <div>
-            Move Along Z
-            <input type="range" class="slider84" oninput="moveAlongZ()" 
-          min="-15" max="15" step="2" value="0"/> 
-        </div>
-        <input type = "button" class="button" value = "Play Animation" onclick="playAnimation()">
-        <input type = "button" class="button" value = "Add Frame" onclick="addFrame()">
-        <input type = "button" class="button" value = "Save" onclick="saveAnimation()">
-        <input type = "file"   value = "Load" onchange= "loadAnimation()">    
-    </div>
-    
-</div>
+
 
 
     <script type="text/javascript" src="Commons/webgl-utils.js"></script>
@@ -157,10 +89,45 @@
 </head>
 
 <body>
-    <canvas id="gl-canvas" width="1200" height="512">
+<h1 id="title">Spider Model</h1>
+<div class = "gridContainer2">
+
+    <p> </p>
+    <button id = "Button2">Increase theta</button>
+    <button id = "Button3">Decrease theta</button>
+    <button id = "Button4">Increase phi</button>
+    <button id = "Button5">Decrease phi</button>
+    <p></p>
+    <div>
+        <div>
+            Move Along X
+            <input  type="range" class="slider82" oninput="moveAlongX()"
+                    min="-15" max="15" step="1" value="0"/>
+        </div>
+        <div>
+            Move Along Y
+            <input  type="range" class="slider83" oninput="moveAlongY()"
+                    min="-20" max="20" step="2" value="0"/>
+        </div>
+
+        <div>
+            Move Along Z
+            <input type="range" class="slider84" oninput="moveAlongZ()"
+                   min="-15" max="15" step="2" value="0"/>
+        </div>
+         <div id="buttons">
+        <input type = "button" class="button" value = "Play Animation" onclick="playAnimation()">
+        <input type = "button" class="button" value = "Add Frame" onclick="addFrame()">
+        <input type = "button" class="button" value = "Save" onclick="saveAnimation()">
+        <input type = "file"   value = "Load" onchange= "loadAnimation()">
+         </div>
+    </div>
+
+</div>
+    <canvas id="gl-canvas" width="1200" height="512" style="background: url('texture_512x512.png')">
         Your browser does not support HTML5 Canvas element
     </canvas>
-</body>
+
 <div class="grid-container">Head 
     <div>
         First Left Leg
@@ -189,7 +156,7 @@
     
     <div>
         <div id="slider0">
-            head angle x <input type="range"
+            <label for="headX">Head angle x</label> <input id="headX" type="range"
              min="-180" max="180" step="10" value="0" oninput= "moveHeadX()"
               />
             </div>
@@ -254,17 +221,17 @@
               />
         </div>
         <div id="slider12">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveLeftMid1X()"
               />
         </div>
         <div id="slider13">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveLeftMid1Y()"
               />
         </div>
         <div id="slider14">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveLeftMid1Z()"
               />
         </div>
@@ -301,17 +268,17 @@
               />
         </div>
         <div id="slider21">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput ="moveLeftMid2X()"
               />
         </div>
         <div id="slider22">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput ="moveLeftMid2Y()"
               />
         </div>
         <div id="slider23">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput ="moveLeftMid2Z()"
               />
         </div>
@@ -348,17 +315,17 @@
               />
         </div>
         <div id="slider30">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput="moveLeftMid3X()"
               />
         </div>
         <div id="slider31">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput="moveLeftMid3Y()"
               />
         </div>
         <div id="slider32">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput="moveLeftMid3Z()"
               />
         </div>
@@ -395,17 +362,17 @@
               />
         </div>
         <div id="slider39">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveLeftMid4X()"
               />
         </div>
         <div id="slider40">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveLeftMid4Y()"
               />
         </div>
         <div id="slider41">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveLeftMid4Z()"
               />
         </div>
@@ -442,17 +409,17 @@
               />
         </div>
         <div id="slider48">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid1X()"
               />
         </div>
         <div id="slider49">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid1Y()"
               />
         </div>
         <div id="slider50">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid1Z()"
               />
         </div>
@@ -489,17 +456,17 @@
               />
         </div>
         <div id="slider57">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid2X()"
               />
         </div>
         <div id="slider58">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid2Y()"
               />
         </div>
         <div id="slider59">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid2Z()"
               />
         </div>
@@ -536,17 +503,17 @@
               />
         </div>
         <div id="slider66">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid3X()"
               />
         </div>
         <div id="slider67">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid3Y()"
               />
         </div>
         <div id="slider68">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid3Z()"
               />
         </div>
@@ -583,17 +550,17 @@
               />
         </div>
         <div id="slider76">
-            Mid leg angle x<input type="range"
+            Mid leg angle x<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid4X()"
               />
         </div>
         <div id="slider77">
-            Mid leg angle y<input type="range"
+            Mid leg angle y<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid4Y()"
               />
         </div>
         <div id="slider78">
-            Mid leg angle z<input type="range"
+            Mid leg angle z<br><input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightMid4Z()"
               />
         </div>
@@ -607,11 +574,12 @@
              min="-180" max="180" step="10" value="0" oninput = "moveRightLower4Y()"
               />
         </div>
-        <div id="slider81">
+        <div id="slider81" class>
             Lower leg angle z<input type="range"
              min="-180" max="180" step="10" value="0" oninput = "moveRightLower4Z()"
               />
         </div>
     </div>
 </div>
+</body>
 </html>

@@ -90,7 +90,7 @@ function init() {
         alert("Your browser does not support WebGL");
     }
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
     
     gl.enable(gl.DEPTH_TEST);
@@ -99,11 +99,8 @@ function init() {
     gl.useProgram(program);
 
     ambientProduct = mult(lightAmbient, materialAmbient);
-	console.log("AMBIENTT " +ambientProduct);
     diffuseProduct = mult(lightDiffuse, materialDiffuse);
-	console.log(diffuseProduct);
     specularProduct = mult(lightSpecular, materialSpecular);
-	console.log(specularProduct);
   
   // Generate Sphere Points
     let sphere = tetrahedron(toSubdivide);
@@ -130,7 +127,6 @@ function init() {
     //cylinderMetadata.indices = cylinderIndices;
     cylinderMetadata.normals = cylinderNormals;
 
-    console.log(cylinderMetadata.vertexCount);
   
 
     // Generate Square Prism - uses index structure
@@ -141,7 +137,6 @@ function init() {
     let prismNormals = prism[2];
     prismMetadata.noOfSides = 4;
     prismMetadata.vertexCount = prismVertices.length;
-    console.log(prismMetadata.vertexCount);
     prismMetadata.vertices = prismVertices;
     prismMetadata.normals = prismNormals;
 
@@ -623,7 +618,6 @@ function addFrame(){
     + alpha[rightLowerLeg4Id][1] +","+ alpha[rightLowerLeg4Id][2] + "," + moveAmounts[0] +","
     + moveAmounts[1] +","+ moveAmounts[2];
     animationFrames += currentFrame +  "\n";//each frame is splited bu new line
-    console.log(animationFrames); 
 }
 
 //downloading frames to txt file 
@@ -659,9 +653,11 @@ function loadAnimation(){
  * References:
  *		https://github.com/celikkoseoglu/CS465-Bilkent/tree/master/Assignment2
  *
-**/ 
+**/
+
 function renderKeyFrame() {
     var frame = animationFrames.split("\n");
+
     if (blockAnimation == false) {
         console.log(frame[keyFrame]);
         processFrameMovement(frame[keyFrame]);
@@ -682,7 +678,7 @@ function playAnimation() {
  *		https://github.com/celikkoseoglu/CS465-Bilkent/tree/master/Assignment2
 **/
 function processFrameMovement(frames) {
-    if (frames !== undefined) {
+    if (frames) {
         let fullMotion = ""; 
         let txtFrames = frames.split(",");
         //console.log(txtFrames);
@@ -696,18 +692,18 @@ function processFrameMovement(frames) {
                 let differenceX;
                 let differenceY;
                 let differenceZ;
-                console.log("i = " + i);
-                console.log("txt length = " + txtFrames.length);
+                //console.log("i = " + i);
+                //console.log("txt length = " + txtFrames.length);
                 if(i < txtFrames.length - 3){
                     counter = i;
                     differenceX = parseFloat(txtFrames[counter]) - alpha[nodeId][0];
-                    console.log(differenceX);
+                    //console.log(differenceX);
                     ++counter;
                     differenceY = parseFloat(txtFrames[counter]) - alpha[nodeId][1];
-                    console.log(differenceY);
+                    //console.log(differenceY);
                     ++counter;
                     differenceZ = parseFloat(txtFrames[counter]) - alpha[nodeId][2];
-                    console.log(differenceZ);
+                    //console.log(differenceZ);
                     nodeId++;
                 }
                 
@@ -751,13 +747,13 @@ function runAnimation(fullMotion) {
             let nodeId = 0;
             for (var k = 0; k < movement.length; k+=3) {
                 
-                if(k < movement.length -3){
+                if(k < movement.length - 3){
                     counter = k;
-                    alpha[nodeId][0] = parseFloat(alpha[nodeId][0]) + parseFloat(movement[counter]);
+                    alpha[nodeId][0] = alpha[nodeId][0] + parseFloat(movement[counter]);
                     counter++;
-                    alpha[nodeId][1] = parseFloat(alpha[nodeId][1]) + parseFloat(movement[counter]);
+                    alpha[nodeId][1] = alpha[nodeId][1] + parseFloat(movement[counter]);
                     counter++;
-                    alpha[nodeId][2] = parseFloat(alpha[nodeId][2]) + parseFloat(movement[counter]);
+                    alpha[nodeId][2] = alpha[nodeId][2] + parseFloat(movement[counter]);
                     nodeId++;
                 }
                 if(k == movement.length-3){
@@ -770,14 +766,16 @@ function runAnimation(fullMotion) {
                 }
                 
             }
-            for (i = 0; i < numNodes; i++)
+            for (let i = 0; i < numNodes; i++)
                 initNodes(i);
             j++;
 
             if (j < motionByKeyFrame.length)
                 animate();
-            else
-                blockAnimation = true;
+            else {
+                console.log("HERE");
+                blockAnimation = false;
+            }
         }, 1000 / 240)
     }
     animate();

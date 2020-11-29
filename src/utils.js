@@ -4,6 +4,8 @@ let indices = [];
 let normalsArray = [];
 let vertices = [];//vertices of prism
 let normals = [];//normals of prism
+
+// Matrix helpers
 function matrixVectorProd(matrix, vector) {
     if (matrix.length !== vector.length) {
         return null;
@@ -20,6 +22,115 @@ function matrixVectorProd(matrix, vector) {
         result[rowIdx] = sum;
     }
     return vec4(result);
+}
+// Expects a 3d matrix - 3 x vec3
+function determinant3x3(matrix3d) {
+    let side1 = matrix3d[0][0] * matrix3d[1][1] * matrix3d[2][2]
+    + matrix3d[1][0] * matrix3d[2][1] * matrix3d[0][2]
+    + matrix3d[2][0] * matrix3d[0][1] * matrix3d[1][2];
+
+    let side2 = matrix3d[0][2] * matrix3d[1][1] * matrix3d[2][0]
+        + matrix3d[1][2] * matrix3d[2][1] * matrix3d[0][0]
+        + matrix3d[2][2] * matrix3d[0][1] * matrix3d[1][0];
+
+    return side1 - side2
+}
+
+function determinant4x4(matrix4d) {
+    let det = matrix4d[0][0] * determinant3x3([vec3(matrix4d[1][1], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[2][1], matrix4d[2][2], matrix4d[2][3]),
+        vec3(matrix4d[3][1], matrix4d[3][2], matrix4d[3][3])]);
+
+    det -= matrix4d[1][0] * determinant3x3([vec3(matrix4d[0][1], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[2][1], matrix4d[2][2], matrix4d[2][3]),
+        vec3(matrix4d[3][1], matrix4d[3][2], matrix4d[3][3])]);
+
+    det += matrix4d[2][0] * determinant3x3([vec3(matrix4d[0][1], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[1][1], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[3][1], matrix4d[3][2], matrix4d[3][3])]);
+
+    det -= matrix4d[3][0] * determinant3x3([vec3(matrix4d[0][1], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[1][1], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[2][1], matrix4d[2][2], matrix4d[2][3])]);
+
+    return det;
+}
+
+function inverse4x4(matrix4d) {
+    let conjugate = mat4();
+    let det = determinant4x4(matrix4d);
+    // Column 1
+    conjugate[0][0] = determinant3x3([vec3(matrix4d[1][1], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[2][1], matrix4d[2][2], matrix4d[2][3]),
+        vec3(matrix4d[3][1], matrix4d[3][2], matrix4d[3][3])
+    ]) / det;
+    conjugate[1][0] = -determinant3x3([vec3(matrix4d[0][1], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[2][1], matrix4d[2][2], matrix4d[2][3]),
+        vec3(matrix4d[3][1], matrix4d[3][2], matrix4d[3][3])
+    ]) / det;
+    conjugate[2][0] = determinant3x3([vec3(matrix4d[0][1], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[1][1], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[3][1], matrix4d[3][2], matrix4d[3][3])
+    ]) / det;
+    conjugate[3][0] = -determinant3x3([vec3(matrix4d[0][1], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[1][1], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[2][1], matrix4d[2][2], matrix4d[2][3])
+    ]) / det;
+    // Column 2
+    conjugate[0][1] = -determinant3x3([vec3(matrix4d[1][0], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[2][0], matrix4d[2][2], matrix4d[2][3]),
+        vec3(matrix4d[3][0], matrix4d[3][2], matrix4d[3][3])
+    ]) / det;
+    conjugate[1][1] = determinant3x3([vec3(matrix4d[0][0], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[2][0], matrix4d[2][2], matrix4d[2][3]),
+        vec3(matrix4d[3][0], matrix4d[3][2], matrix4d[3][3])
+    ]) / det;
+    conjugate[2][1] = -determinant3x3([vec3(matrix4d[0][0], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[1][0], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[3][0], matrix4d[3][2], matrix4d[3][3])
+    ]) / det;
+    conjugate[3][1] = determinant3x3([vec3(matrix4d[0][0], matrix4d[0][2], matrix4d[0][3]),
+        vec3(matrix4d[1][0], matrix4d[1][2], matrix4d[1][3]),
+        vec3(matrix4d[2][0], matrix4d[2][2], matrix4d[2][3])
+    ]) / det;
+
+    // Column 3
+    conjugate[0][2] = determinant3x3([vec3(matrix4d[1][0], matrix4d[1][1], matrix4d[1][3]),
+        vec3(matrix4d[2][0], matrix4d[2][1], matrix4d[2][3]),
+        vec3(matrix4d[3][0], matrix4d[3][1], matrix4d[3][3])
+    ]) / det;
+    conjugate[1][2] = -determinant3x3([vec3(matrix4d[0][0], matrix4d[0][1], matrix4d[0][3]),
+        vec3(matrix4d[2][0], matrix4d[2][1], matrix4d[2][3]),
+        vec3(matrix4d[3][0], matrix4d[3][1], matrix4d[3][3])
+    ]) / det;
+    conjugate[2][2] = determinant3x3([vec3(matrix4d[0][0], matrix4d[0][1], matrix4d[0][3]),
+        vec3(matrix4d[1][0], matrix4d[1][1], matrix4d[1][3]),
+        vec3(matrix4d[3][0], matrix4d[3][1], matrix4d[3][3])
+    ]) / det;
+    conjugate[3][2] = -determinant3x3([vec3(matrix4d[0][0], matrix4d[0][1], matrix4d[0][3]),
+        vec3(matrix4d[1][0], matrix4d[1][1], matrix4d[1][3]),
+        vec3(matrix4d[2][0], matrix4d[2][1], matrix4d[2][3])
+    ]) / det;
+
+    // Column 4
+    conjugate[0][3] = -determinant3x3([vec3(matrix4d[1][0], matrix4d[1][1], matrix4d[1][2]),
+        vec3(matrix4d[2][0], matrix4d[2][1], matrix4d[2][2]),
+        vec3(matrix4d[3][0], matrix4d[3][1], matrix4d[3][2])
+    ]) / det;
+    conjugate[1][3] = determinant3x3([vec3(matrix4d[0][0], matrix4d[0][1], matrix4d[0][2]),
+        vec3(matrix4d[2][0], matrix4d[2][1], matrix4d[2][2]),
+        vec3(matrix4d[3][0], matrix4d[3][1], matrix4d[3][2])
+    ]) / det;
+    conjugate[2][3] = -determinant3x3([vec3(matrix4d[0][0], matrix4d[0][1], matrix4d[0][2]),
+        vec3(matrix4d[1][0], matrix4d[1][1], matrix4d[1][2]),
+        vec3(matrix4d[3][0], matrix4d[3][1], matrix4d[3][2])
+    ]) / det;
+    conjugate[3][3] = determinant3x3([vec3(matrix4d[0][0], matrix4d[0][1], matrix4d[0][2]),
+        vec3(matrix4d[1][0], matrix4d[1][1], matrix4d[1][2]),
+        vec3(matrix4d[2][0], matrix4d[2][1], matrix4d[2][2])
+    ]) / det;
+
+    return conjugate;
 }
 
 function getPolygon(sides, rotateAxis, r) {
