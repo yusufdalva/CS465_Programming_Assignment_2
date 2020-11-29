@@ -13,6 +13,11 @@ let sphereMetadata = {};
 let cylinderMetadata = {};
 let prismMetadata = {};
 
+let animationFrames= "";
+let currentFrame = "";
+let keyFrame = 0;
+let blockAnimation = false;
+
 let vertexCount = 0;
 
 let alpha = [ // alpha is the joint angle
@@ -46,6 +51,7 @@ let alpha = [ // alpha is the joint angle
     [0, 30, 0]       // rightLowerLeg4
 ];
 
+moveAmounts = [0,0,0];
 let eye;
 let at = vec3(0.0, 0.0, 0.0);
 let up = vec3(0.0, 1.0, 0.0);
@@ -57,10 +63,10 @@ var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 
 var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
+var materialDiffuse = vec4( 1.0, 0.7, 0.3, 1.0 );
 var materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 var ambientColor, diffuseColor, specularColor;
-var materialShininess = 100.0;
+var materialShininess = 500.0;
 let modelViewMatrix, projectionMatrix;
 let mvMatrixLoc, prjMatrixLoc;
 
@@ -275,9 +281,11 @@ function initNodes(partId) {
 
     switch (partId) {
         case torsoId: // y - DONE
+
             m = mult(m, rotate(alpha[torsoId][2], 0, 0, 1));
             m = mult(m, rotate(alpha[torsoId][1], 0, 1,0)); // Rotate around y - by euler angle
             m = mult(m, rotate(alpha[torsoId][0], 1, 0, 0));
+            m = mult(m,translate(moveAmounts[0],moveAmounts[1],moveAmounts[2]));
             spider[torsoId] = createNode(m, torso, null, leftTentacleId);
             break;
         case leftTentacleId: // y - DONE
@@ -316,7 +324,7 @@ function initNodes(partId) {
             m = mult(m,rotate(alpha[leftMidLeg1Id][0],1,0,0));
             spider[leftMidLeg1Id] = createNode(m, midLeg,null,leftLowerLeg1Id);
             break;	
-	//BUNDA Bİ DEĞİŞİKLİK VAR
+	
 	case leftLowerLeg1Id: // z
 	    m = translate(2*midLegHeight, 0.0, 0.0);
 	    m = mult(m,rotate(alpha[leftLowerLeg1Id][2],0,0,1));
@@ -581,7 +589,218 @@ function lowerLeg(){
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
     renderCylinder();
 }
+//*********FRAMES AND ANIMATIONS******************** */
+//ADDING FRAMES 
+function addFrame(){
+    
+    currentFrame = alpha[torsoId][0] +","+ alpha[torsoId][1] +","+ alpha[torsoId][2] +"," + alpha[leftTentacleId][0] +","
+    + alpha[leftTentacleId][1] +","+ alpha[leftTentacleId][2] +"," + alpha[rightTentacleId][0] +","
+    + alpha[rightTentacleId][1] +","+ alpha[rightTentacleId][2] +"," + alpha[lowerTorsoId][0] +","
+    + alpha[lowerTorsoId][1] +","+ alpha[lowerTorsoId][2] +"," + alpha[leftUpperLeg1Id][0] +","
+    + alpha[leftUpperLeg1Id][1] +","+ alpha[leftUpperLeg1Id][2] +","+ alpha[leftMidLeg1Id][0] +","
+    + alpha[leftMidLeg1Id][1] +","+ alpha[leftMidLeg1Id][2] +"," + alpha[leftLowerLeg1Id][0] +","
+    + alpha[leftLowerLeg1Id][1] +","+ alpha[leftLowerLeg1Id][2] +"," + alpha[leftUpperLeg2Id][0] +","
+    + alpha[leftUpperLeg2Id][1] +","+ alpha[leftUpperLeg2Id][2] +","+ alpha[leftMidLeg2Id][0] +","
+    + alpha[leftMidLeg2Id][1] +","+ alpha[leftMidLeg2Id][2] +"," + alpha[leftLowerLeg2Id][0] +","
+    + alpha[leftLowerLeg2Id][1] +","+ alpha[leftLowerLeg2Id][2] +"," + alpha[leftUpperLeg3Id][0] +","
+    + alpha[leftUpperLeg3Id][1] +","+ alpha[leftUpperLeg3Id][2] +","+ alpha[leftMidLeg3Id][0] +","
+    + alpha[leftMidLeg3Id][1] +","+ alpha[leftMidLeg3Id][2] +"," + alpha[leftLowerLeg3Id][0] +","
+    + alpha[leftLowerLeg3Id][1] +","+ alpha[leftLowerLeg3Id][2] +"," + alpha[leftUpperLeg4Id][0] +","
+    + alpha[leftUpperLeg4Id][1] +","+ alpha[leftUpperLeg4Id][2] +","+ alpha[leftMidLeg4Id][0] +","
+    + alpha[leftMidLeg4Id][1] +","+ alpha[leftMidLeg4Id][2] +"," + alpha[leftLowerLeg4Id][0] +","
+    + alpha[leftLowerLeg4Id][1] +","+ alpha[leftLowerLeg4Id][2] +","+ alpha[rightUpperLeg1Id][0] +","
+    + alpha[rightUpperLeg1Id][1] +","+ alpha[rightUpperLeg1Id][2] +","+ alpha[rightMidLeg1Id][0] +","
+    + alpha[rightMidLeg1Id][1] +","+ alpha[rightMidLeg1Id][2] +"," + alpha[rightLowerLeg1Id][0] +","
+    + alpha[rightLowerLeg1Id][1] +","+ alpha[rightLowerLeg1Id][2] +"," + alpha[rightUpperLeg2Id][0] +","
+    + alpha[rightUpperLeg2Id][1] +","+ alpha[rightUpperLeg2Id][2] +","+ alpha[rightMidLeg2Id][0] +","
+    + alpha[rightMidLeg2Id][1] +","+ alpha[rightMidLeg2Id][2] +"," + alpha[rightLowerLeg2Id][0] +","
+    + alpha[rightLowerLeg2Id][1] +","+ alpha[rightLowerLeg2Id][2] +"," + alpha[rightUpperLeg3Id][0] +","
+    + alpha[rightUpperLeg3Id][1] +","+ alpha[rightUpperLeg3Id][2] +","+ alpha[rightMidLeg3Id][0] +","
+    + alpha[rightMidLeg3Id][1] +","+ alpha[rightMidLeg3Id][2] +"," + alpha[rightLowerLeg3Id][0] +","
+    + alpha[rightLowerLeg3Id][1] +","+ alpha[rightLowerLeg3Id][2] +"," + alpha[rightUpperLeg4Id][0] +","
+    + alpha[rightUpperLeg4Id][1] +","+ alpha[rightUpperLeg4Id][2] +","+ alpha[rightMidLeg4Id][0] +","
+    + alpha[rightMidLeg4Id][1] +","+ alpha[rightMidLeg4Id][2] +"," + alpha[rightLowerLeg4Id][0] +","
+    + alpha[rightLowerLeg4Id][1] +","+ alpha[rightLowerLeg4Id][2] + "," + moveAmounts[0] +","
+    + moveAmounts[1] +","+ moveAmounts[2];
+    animationFrames += currentFrame +  "\n";//each frame is splited bu new line
+    console.log(animationFrames); 
+}
 
+//downloading frames to txt file 
+function saveAnimation() {
+    let file = new Blob([animationFrames], {type: "text"});
+    let filename = "Animation.txt"
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        let a = document.createElement("a"),
+        url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        }, 0); 
+    }
+}
+
+//LOAD ANIMATION FILE
+function loadAnimation(){
+    var files = event.target.files;
+    var txt = files[0].text();
+    txt.then(function(content_read){
+        animationFrames = content_read;
+    })
+}
+
+/**
+ * References:
+ *		https://github.com/celikkoseoglu/CS465-Bilkent/tree/master/Assignment2
+ *
+**/ 
+function renderKeyFrame() {
+    var frame = animationFrames.split("\n");
+    if (blockAnimation == false) {
+        console.log(frame[keyFrame]);
+        processFrameMovement(frame[keyFrame]);
+        keyFrame++;
+    }
+}
+
+//Animation start
+function playAnimation() {
+    keyFrame = 0;
+    setInterval(renderKeyFrame, 10);
+}
+
+
+/**
+ *Processes frame movements by 30 factor which is half of fp this is for a more smooth animation
+ * References:
+ *		https://github.com/celikkoseoglu/CS465-Bilkent/tree/master/Assignment2
+**/
+function processFrameMovement(frames) {
+    if (frames !== undefined) {
+        let fullMotion = ""; 
+        let txtFrames = frames.split(",");
+        //console.log(txtFrames);
+        blockAnimation = true; 
+        let counter = 0;
+        let nodeId = 0;
+        for (var j = 0; j < 30; j++) { 
+            nodeId = 0;
+            counter = 0;
+            for (var i = 0; i < txtFrames.length; i += 3){
+                let differenceX;
+                let differenceY;
+                let differenceZ;
+                console.log("i = " + i);
+                console.log("txt length = " + txtFrames.length);
+                if(i < txtFrames.length - 3){
+                    counter = i;
+                    differenceX = parseFloat(txtFrames[counter]) - alpha[nodeId][0];
+                    console.log(differenceX);
+                    ++counter;
+                    differenceY = parseFloat(txtFrames[counter]) - alpha[nodeId][1];
+                    console.log(differenceY);
+                    ++counter;
+                    differenceZ = parseFloat(txtFrames[counter]) - alpha[nodeId][2];
+                    console.log(differenceZ);
+                    nodeId++;
+                }
+                
+    
+                if(i == txtFrames.length - 3){
+                   
+                    counter = i;
+                    differenceX = parseFloat(txtFrames[counter]) - moveAmounts[0];
+                    ++counter;
+                    differenceY = parseFloat(txtFrames[counter]) - moveAmounts[1];
+                    ++counter;
+                    differenceZ = parseFloat(txtFrames[counter]) - moveAmounts[2];
+                }
+                var movingX = (differenceX / 30);
+                var movingY = (differenceY / 30);
+                var movingZ = (differenceZ / 30);
+    
+                fullMotion +=  movingX + "," + movingY + "," + movingZ + ",";
+            }
+            
+            fullMotion = fullMotion.substring(0, fullMotion.length - 1); 
+            fullMotion += "\n";
+        }
+        runAnimation(fullMotion);
+    }
+}
+
+/**
+ *,This function renders frame by frame by adding the frame values and alpha values to generate movement
+ * References:
+ *		https://github.com/celikkoseoglu/CS465-Bilkent/tree/master/Assignment2
+**/ 
+function runAnimation(fullMotion) {
+    let j = 0;
+    let motionByKeyFrame = fullMotion.split("\n");
+    
+    function animate() {
+        setTimeout(function () {
+            var movement = motionByKeyFrame[j].split(',');
+            let counter = 0;
+            let nodeId = 0;
+            for (var k = 0; k < movement.length; k+=3) {
+                
+                if(k < movement.length -3){
+                    counter = k;
+                    alpha[nodeId][0] = parseFloat(alpha[nodeId][0]) + parseFloat(movement[counter]);
+                    counter++;
+                    alpha[nodeId][1] = parseFloat(alpha[nodeId][1]) + parseFloat(movement[counter]);
+                    counter++;
+                    alpha[nodeId][2] = parseFloat(alpha[nodeId][2]) + parseFloat(movement[counter]);
+                    nodeId++;
+                }
+                if(k == movement.length-3){
+                    counter = k;
+                    moveAmounts[0] = moveAmounts[0] + parseFloat(movement[counter]);
+                    counter++;
+                    moveAmounts[1] = moveAmounts[1] + parseFloat(movement[counter]);
+                    counter++;
+                    moveAmounts[2] = moveAmounts[2] + parseFloat(movement[counter]);
+                }
+                
+            }
+            for (i = 0; i < numNodes; i++)
+                initNodes(i);
+            j++;
+
+            if (j < motionByKeyFrame.length)
+                animate();
+            else
+                blockAnimation = true;
+        }, 1000 / 240)
+    }
+    animate();
+}
+
+
+
+
+/*******************************END OF FRAMES AND ANIMATIONS**************************************************/
+
+//Translation movement of spider
+function moveAlongX(){
+    moveAmounts[0] = event.srcElement.value;
+    initNodes(torsoId);
+}
+function moveAlongY(){
+    moveAmounts[1] = event.srcElement.value;
+    initNodes(torsoId);
+}
+function moveAlongZ(){
+    moveAmounts[2] = event.srcElement.value;
+    initNodes(torsoId);
+}
 //torso movements
 function moveHeadX(){
    alpha[torsoId][0]= event.srcElement.value;

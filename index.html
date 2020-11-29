@@ -74,20 +74,79 @@
             gl_FragColor = fColor;
         }
     </script>
+    <style>
+        .div{
+            background: #a83333; 
+        }
+        .slidecontainer {
+            width: 100%;
+        }
+        
+        .slider {
+            width: 80%;
+            height: 13px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1%;
+            grid-gap: 5px;
+            background-color: #c18862;
+            padding: 5px;
+        }
+        .grid-container2{
+            display: grid;
+            grid-template-columns: 25% 25% 50%;
+            grid-gap: 5px;
+            background-color: #c18862;
+            padding: 5px;
+        }
+        .panel {
+            padding: 5 2px;
+            width: 99%;
+            display: none;
+            background-color: white;
+            overflow: hidden;
+        }
+        
+        </style>
+<div class = "gridContainer2">
+       
     <p> </p>
-<button id = "Button0">Increase R</button>
-<button id = "Button1">Decrease R</button>
+    <button id = "Button2">Increase theta</button>
+    <button id = "Button3">Decrease theta</button>
+    <button id = "Button4">Increase phi</button>
+    <button id = "Button5">Decrease phi</button>
+    <p></p>
+    <div>
+        <div>
+            Move Along X
+        <input  type="range" class="slider82" oninput="moveAlongX()" 
+      min="-15" max="15" step="1" value="0"/>
+        </div>
+        <div>
+            Move Along Y
+            <input  type="range" class="slider83" oninput="moveAlongY()" 
+            min="-20" max="20" step="2" value="0"/>
+        </div>
+        
+        <div>
+            Move Along Z
+            <input type="range" class="slider84" oninput="moveAlongZ()" 
+          min="-15" max="15" step="2" value="0"/> 
+        </div>
+        <input type = "button" class="button" value = "Play Animation" onclick="playAnimation()">
+        <input type = "button" class="button" value = "Add Frame" onclick="addFrame()">
+        <input type = "button" class="button" value = "Save" onclick="saveAnimation()">
+        <input type = "file"   value = "Load" onchange= "loadAnimation()">    
+    </div>
+    
+</div>
 
-<p> </p>
-<button id = "Button2">Increase theta</button>
-<button id = "Button3">Decrease theta</button>
-<button id = "Button4">Increase phi</button>
-<button id = "Button5">Decrease phi</button>
-<p> </p>
-<button id = "Button6">Increase Subdivisions</button>
-<button id = "Button7">Decrease Subdivisions</button>
-
-<p></p>
 
     <script type="text/javascript" src="Commons/webgl-utils.js"></script>
     <script type="text/javascript" src="Commons/initShaders.js"></script>
@@ -96,38 +155,7 @@
     <script type="text/javascript" src="src/figure-utils.js"></script>
     <script type="text/javascript" src="src/app.js"></script>
 </head>
-<style>
-    .div{
-        background: #a83333; 
-    }
-    .slidecontainer {
-        width: 100%;
-    }
-    
-    .slider {
-        width: 80%;
-        height: 13px;
-        background: #d3d3d3;
-        outline: none;
-        opacity: 0.7;
-        -webkit-transition: .2s;
-        transition: opacity .2s;
-    }
-    .grid-container {
-        display: grid;
-        grid-template-columns: 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1%;
-        grid-gap: 5px;
-        background-color: #c18862;
-        padding: 5px;
-    }
-    .panel {
-        padding: 5 2px;
-        width: 99%;
-        display: none;
-        background-color: white;
-        overflow: hidden;
-    }
-    </style>
+
 <body>
     <canvas id="gl-canvas" width="1200" height="512">
         Your browser does not support HTML5 Canvas element
