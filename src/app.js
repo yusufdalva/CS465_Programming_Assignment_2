@@ -590,6 +590,63 @@ function lowerLeg(){
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(instanceMatrix));
     renderCylinder();
 }
+//WALKING
+function walkSpider(){
+    
+    let increasing = 0;
+    let decreasing = 0;
+
+    let inc_amount = -0.7;
+    let dec_amount = +0.7;
+    for(let i = 0; i < 100; i++){
+        if(increasing > 1){
+            inc_amount = 0.33;
+            increasing = 0;
+        }
+        if(decreasing < 1){
+            dec_amount = -0.33;
+            decreasing = 0;
+        }
+        moveAmounts[1] += 0.01;
+        
+            alpha[leftUpperLeg1Id][0] += inc_amount;
+            alpha[leftUpperLeg1Id][1] +=5; 
+            alpha[leftMidLeg1Id][1] += 5;
+            initNodes(leftUpperLeg1Id);
+            alpha[leftUpperLeg1Id][1] -=5; 
+            alpha[leftMidLeg1Id][1] -= 5;
+
+            alpha[leftUpperLeg2Id][0] += inc_amount;
+            alpha[leftUpperLeg2Id][1] +=4; 
+            initNodes(leftUpperLeg2Id);
+            alpha[leftUpperLeg2Id][1] -=4; 
+
+            alpha[leftUpperLeg3Id][0] += inc_amount;
+            alpha[leftUpperLeg3Id][1] +=3; 
+            initNodes(leftUpperLeg3Id);
+            alpha[leftUpperLeg3Id][1] -=3; 
+
+            alpha[leftUpperLeg4Id][0] += inc_amount;
+            alpha[leftUpperLeg4Id][1] +=2; 
+            initNodes(leftUpperLeg4Id);
+            alpha[leftUpperLeg4Id][1] -=2; 
+
+            alpha[rightUpperLeg1Id][0] += dec_amount;
+            initNodes(rightUpperLeg1Id);
+            alpha[rightUpperLeg2Id][0] += dec_amount;
+            initNodes(rightUpperLeg2Id);
+            alpha[rightUpperLeg3Id][0] += dec_amount;
+            initNodes(rightUpperLeg3Id);
+            alpha[rightUpperLeg4Id][0] += dec_amount;
+            initNodes(rightUpperLeg4Id);
+            initNodes(torsoId);
+            
+            increasing++;
+            decreasing++;      
+        
+    }
+    
+}
 //*********FRAMES AND ANIMATIONS******************** */
 //ADDING FRAMES 
 function addFrame(){
